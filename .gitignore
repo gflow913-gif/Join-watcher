@@ -1,0 +1,12 @@
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+.yarn
+.pnp.*
+.DS_Store
+*.log
+member_data.json
+.env
+.replit
+replit.nix
