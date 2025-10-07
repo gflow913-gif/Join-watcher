@@ -18,7 +18,7 @@ async function startFounderRgbAnimation(client) {
     
     setTimeout(() => {
       setInterval(async () => {
-        hue = (hue + 5) % 360;
+        hue = (hue + 10) % 360;
         const colorHex = hslToHex(hue, 100, 50);
         const colorInt = parseInt(colorHex.replace('#', ''), 16);
 
@@ -36,12 +36,12 @@ async function startFounderRgbAnimation(client) {
             }
           }
         }
-      }, 5000);
-    }, index * 1500);
+      }, 1000);
+    }, index * 500);
   });
 
   console.log('✅ Founder RGB animation started successfully!');
-  console.log('⏱️ Staggered updates: Each role updates every 5 seconds with 1.5s delay between roles');
+  console.log('🚀 Fast RGB mode: Each role updates every 1 second with smooth color transitions');
 }
 
 module.exports = { startFounderRgbAnimation };
