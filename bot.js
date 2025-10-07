@@ -209,14 +209,13 @@ client.on('interactionCreate', async (interaction) => {
             firstJoin: member.joinedAt?.toISOString() || new Date().toISOString(),
             joins: [{
               timestamp: member.joinedAt?.toISOString() || new Date().toISOString(),
-              isNewMember: true,
-              note: 'Scanned from existing members'
+              isNewMember: false,
+              note: 'Pre-existing member (scanned, not eligible for payment)'
             }],
-            eligibleJoins: 1,
-            totalOwed: 2
+            eligibleJoins: 0,
+            totalOwed: 0,
+            isScanned: true
           };
-          memberData.totalEligibleJoins++;
-          memberData.totalPaymentDue += 2;
           newlyTracked++;
         } else {
           alreadyTracked++;
