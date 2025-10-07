@@ -12,33 +12,36 @@ async function startFounderRgbAnimation(client) {
   console.log('🌈 Starting Founder RGB animation...');
 
   const founderRoles = ['Big Founder', 'Middle Founder', 'Small Founder'];
-  let hue = 0;
-  let updateCount = 0;
+  
+  founderRoles.forEach((roleName, index) => {
+    let hue = index * 120;
+    
+    setTimeout(() => {
+      setInterval(async () => {
+        hue = (hue + 5) % 360;
+        const colorHex = hslToHex(hue, 100, 50);
+        const colorInt = parseInt(colorHex.replace('#', ''), 16);
 
-  setInterval(async () => {
-    hue = (hue + 5) % 360;
-    const colorHex = hslToHex(hue, 100, 50);
-    const colorInt = parseInt(colorHex.replace('#', ''), 16);
-
-    for (const guild of client.guilds.cache.values()) {
-      for (const roleName of founderRoles) {
-        const role = guild.roles.cache.find(r => r.name === roleName);
-        if (role) {
-          try {
-            await role.setColor(colorInt);
-            updateCount++;
-            if (updateCount % 50 === 0) {
-              console.log(`🎨 RGB Update #${updateCount}: ${roleName} → ${colorHex}`);
+        for (const guild of client.guilds.cache.values()) {
+          const role = guild.roles.cache.find(r => r.name === roleName);
+          if (role) {
+            try {
+              await role.setColor(colorInt);
+            } catch (error) {
+              if (error.code === 50013) {
+                console.error(`❌ Missing permissions for ${roleName}`);
+              } else if (error.code === 429) {
+                console.error(`⏱️ Rate limited on ${roleName} - waiting...`);
+              }
             }
-          } catch (error) {
-            console.error(`❌ Failed to update ${roleName}:`, error.message);
           }
         }
-      }
-    }
-  }, 1000);
+      }, 5000);
+    }, index * 1500);
+  });
 
   console.log('✅ Founder RGB animation started successfully!');
+  console.log('⏱️ Staggered updates: Each role updates every 5 seconds with 1.5s delay between roles');
 }
 
 module.exports = { startFounderRgbAnimation };
