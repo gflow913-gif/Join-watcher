@@ -1,329 +1,177 @@
+const { ChannelType } = require('discord.js');
+const { memberData, saveData } = require('./utils/dataManager');
 
-const { memberData, saveData } = require('../utils/dataManager');
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+// ===== MAIN COMMAND HANDLER =====
+async function handleCommands(interaction) {
+  if (!interaction.isChatInputCommand()) return;
 
-async function handleCommands(interaction, client) {
+  // =====================
+  // === BASIC COMMANDS ===
+  // =====================
+
   if (interaction.commandName === 'checkuser') {
+    await interaction.reply({ content: `👤 Checked user: ${interaction.user.username}`, ephemeral: true });
+  }
+
+  else if (interaction.commandName === 'stats') {
+    const guild = interaction.guild;
+    await interaction.reply({
+      content: `📊 Server Stats:\nMembers: ${guild.memberCount}\nName: ${guild.name}`,
+      ephemeral: true
+    });
+  }
+
+  else if (interaction.commandName === 'scanexisting') {
+    const guild = interaction.guild;
+    const members = await guild.members.fetch();
+    let count = 0;
+
+    members.forEach(member => {
+      if (!member.user.bot && !memberData[member.id]) {
+        memberData[member.id] = { joinedAt: member.joinedAt, claimed: false };
+        count++;
+      }
+    });
+
+    saveData();
+    await interaction.reply({ content: `🔍 Scanned ${count} new members and added to database.`, ephemeral: true });
+  }
+
+  else if (interaction.commandName === 'unclaimed') {
+    const unclaimed = Object.entries(memberData)
+      .filter(([_, data]) => !data.claimed)
+      .map(([id]) => `<@${id}>`);
+
+    if (unclaimed.length === 0) {
+      await interaction.reply({ content: '✅ All joins are claimed.', ephemeral: true });
+    } else {
+      await interaction.reply({ content: `🧾 Unclaimed Joins:\n${unclaimed.join('\n')}`, ephemeral: true });
+    }
+  }
+
+  else if (interaction.commandName === 'claim') {
     const user = interaction.options.getUser('user');
-    const userData = memberData.members[user.id];
-
-    if (!userData) {
-      await interaction.reply({
-        content: `No data found for ${user.tag}. They haven't joined the server yet or weren't tracked.`,
-        ephemeral: true
-      });
+    if (!memberData[user.id]) {
+      await interaction.reply({ content: '❌ User not found in database.', ephemeral: true });
       return;
     }
 
-    await interaction.reply({
-      content: `**User Information: ${user.tag}**\n` +
-        `First Join: ${new Date(userData.firstJoin).toLocaleString()}\n` +
-        `Total Joins: ${userData.joins.length}\n` +
-        `Eligible Joins: ${userData.eligibleJoins}\n` +
-        `Total Owed: ${userData.totalOwed}sx\n\n` +
-        `**Join History:**\n` +
-        userData.joins.map((join, i) => 
-          `${i + 1}. ${new Date(join.timestamp).toLocaleString()} - ${join.isNewMember ? 'NEW ✅' : 'REJOIN ❌'}`
-        ).join('\n'),
-      ephemeral: true
-    });
-  }
-
-  if (interaction.commandName === 'stats') {
-    const totalMembers = Object.keys(memberData.members).length;
-    
-    await interaction.reply({
-      content: `**Server Statistics**\n` +
-        `Total Tracked Members: ${totalMembers}\n` +
-        `Total Eligible Joins: ${memberData.totalEligibleJoins}\n` +
-        `Total Payment Due: ${memberData.totalPaymentDue}sx\n` +
-        `Rate: 2sx per eligible join`,
-      ephemeral: true
-    });
-  }
-
-  if (interaction.commandName === 'scanexisting') {
-    if (!interaction.member.permissions.has('Administrator')) {
-      await interaction.reply({
-        content: 'You need Administrator permission to use this command.',
-        ephemeral: true
-      });
-      return;
-    }
-
-    await interaction.deferReply({ ephemeral: true });
-
-    try {
-      const members = await interaction.guild.members.fetch();
-      let newlyTracked = 0;
-      let alreadyTracked = 0;
-
-      members.forEach(member => {
-        if (member.user.bot) return;
-
-        if (!memberData.members[member.user.id]) {
-          memberData.members[member.user.id] = {
-            userId: member.user.id,
-            firstJoin: member.joinedAt?.toISOString() || new Date().toISOString(),
-            joins: [{
-              timestamp: member.joinedAt?.toISOString() || new Date().toISOString(),
-              isNewMember: false,
-              claimed: true,
-              note: 'Pre-existing member (scanned, not eligible for payment)'
-            }],
-            eligibleJoins: 0,
-            totalOwed: 0,
-            isScanned: true
-          };
-          newlyTracked++;
-        } else {
-          alreadyTracked++;
-        }
-      });
-
-      saveData();
-
-      await interaction.editReply({
-        content: `**Scan Complete**\n` +
-          `Total members scanned: ${members.size}\n` +
-          `Newly tracked: ${newlyTracked}\n` +
-          `Already tracked: ${alreadyTracked}\n` +
-          `Total eligible joins: ${memberData.totalEligibleJoins}\n` +
-          `Total payment due: ${memberData.totalPaymentDue}sx`
-      });
-    } catch (error) {
-      console.error('Error scanning members:', error);
-      await interaction.editReply({
-        content: `Error scanning members: ${error.message}`
-      });
-    }
-  }
-
-  if (interaction.commandName === 'unclaimed') {
-    if (interaction.user.id !== '1309720025912971355') {
-      await interaction.reply({
-        content: 'You do not have permission to use this command.',
-        ephemeral: true
-      });
-      return;
-    }
-
-    const unclaimedJoins = [];
-    
-    for (const [userId, userData] of Object.entries(memberData.members)) {
-      userData.joins.forEach((join, index) => {
-        if (join.isNewMember && !join.claimed) {
-          unclaimedJoins.push({
-            userId: userId,
-            timestamp: join.timestamp,
-            joinIndex: index
-          });
-        }
-      });
-    }
-
-    if (unclaimedJoins.length === 0) {
-      await interaction.reply({
-        content: '**No Unclaimed Joins**\nAll eligible joins have been claimed!',
-        ephemeral: true
-      });
-      return;
-    }
-
-    const totalUnclaimed = unclaimedJoins.length;
-    const totalUnclaimedPayment = totalUnclaimed * 2;
-
-    let message = `**Unclaimed Eligible Joins**\n`;
-    message += `Total Unclaimed: ${totalUnclaimed}\n`;
-    message += `Total Payment Due: ${totalUnclaimedPayment}sx\n\n`;
-
-    const displayLimit = 20;
-    const displayJoins = unclaimedJoins.slice(0, displayLimit);
-
-    for (const join of displayJoins) {
-      const user = await client.users.fetch(join.userId).catch(() => null);
-      const userName = user ? user.tag : `User ID: ${join.userId}`;
-      message += `• ${userName} - ${new Date(join.timestamp).toLocaleString()} - 2sx\n`;
-    }
-
-    if (unclaimedJoins.length > displayLimit) {
-      message += `\n...and ${unclaimedJoins.length - displayLimit} more`;
-    }
-
-    await interaction.reply({
-      content: message,
-      ephemeral: true
-    });
-  }
-
-  if (interaction.commandName === 'claim') {
-    if (interaction.user.id !== '1309720025912971355') {
-      await interaction.reply({
-        content: 'You do not have permission to use this command.',
-        ephemeral: true
-      });
-      return;
-    }
-
-    let claimedCount = 0;
-    let claimedAmount = 0;
-
-    for (const [userId, userData] of Object.entries(memberData.members)) {
-      userData.joins.forEach((join) => {
-        if (join.isNewMember && !join.claimed) {
-          join.claimed = true;
-          claimedCount++;
-          claimedAmount += 2;
-        }
-      });
-    }
-
-    if (claimedCount === 0) {
-      await interaction.reply({
-        content: '**No Unclaimed Joins**\nThere are no eligible joins to claim.',
-        ephemeral: true
-      });
-      return;
-    }
-
+    memberData[user.id].claimed = true;
     saveData();
-
-    await interaction.reply({
-      content: `**Joins Claimed Successfully!**\n` +
-        `Claimed Joins: ${claimedCount}\n` +
-        `Total Amount Claimed: ${claimedAmount}sx\n\n` +
-        `All eligible joins have been marked as claimed.`,
-      ephemeral: true
-    });
+    await interaction.reply({ content: `✅ Marked ${user.username} as claimed.`, ephemeral: true });
   }
 
-  if (interaction.commandName === 'setupticket') {
-    if (interaction.user.id !== '1309720025912971355') {
+  else if (interaction.commandName === 'setupticket') {
+    const guild = interaction.guild;
+    let category = guild.channels.cache.find(c => c.name === 'Tickets' && c.type === ChannelType.GuildCategory);
+
+    if (!category) {
+      category = await guild.channels.create({
+        name: 'Tickets',
+        type: ChannelType.GuildCategory,
+      });
+    }
+
+    await interaction.reply({ content: '🎫 Ticket system setup complete.', ephemeral: true });
+  }
+
+  else if (interaction.commandName === 'createroles') {
+    const guild = interaction.guild;
+    const colors = ['#ff0000', '#00ff00', '#0000ff'];
+    for (const color of colors) {
+      await guild.roles.create({
+        name: `RGB-${color}`,
+        color,
+      });
+    }
+    await interaction.reply({ content: '✅ RGB color roles created!', ephemeral: true });
+  }
+
+  // =====================
+  // === SMOOTH RGB SYSTEM (STRICT ACCESS) ===
+  // =====================
+  else if (interaction.commandName === 'givergb' || interaction.commandName === 'removergb') {
+    const member = interaction.member;
+    const guild = interaction.guild;
+    const userId = interaction.user.id;
+
+    // Your personal user ID (admin access)
+    const ownerId = '1309720025912971355';
+
+    // Founder roles
+    const allowedRoles = ['Big Founder', 'Middle Founder', 'Small Founder'];
+
+    // Check if user is you or a Founder
+    const isAllowed =
+      userId === ownerId ||
+      member.roles.cache.some(r => allowedRoles.includes(r.name));
+
+    if (!isAllowed) {
       await interaction.reply({
-        content: 'You do not have permission to use this command.',
+        content: '🚫 You are not allowed to use this command. Only Founders and the bot owner can use it.',
         ephemeral: true
       });
       return;
     }
 
-    const channel = interaction.options.getChannel('channel');
-    const namePrefix = interaction.options.getString('nameprefix');
-    const category = interaction.options.getChannel('category');
+    // === /givergb ===
+    if (interaction.commandName === 'givergb') {
+      let rgbRole = guild.roles.cache.find(r => r.name === 'RGB Name');
 
-    if (category && category.type !== 4) {
+      if (!rgbRole) {
+        rgbRole = await guild.roles.create({
+          name: 'RGB Name',
+          color: 0xff0000,
+          reason: 'Created for RGB glowing name system'
+        });
+
+        // Smooth color fade animation
+        let hue = 0;
+        setInterval(async () => {
+          if (!rgbRole || !guild.roles.cache.has(rgbRole.id)) return;
+          hue = (hue + 5) % 360;
+          const color = hslToHex(hue, 100, 50);
+          await rgbRole.setColor(color).catch(() => {});
+        }, 1000); // changes smoothly every 1 second
+      }
+
+      await member.roles.add(rgbRole).catch(console.error);
       await interaction.reply({
-        content: '❌ The category must be a category channel, not a text/voice channel!',
+        content: '🌈 RGB effect added! Your name will now glow smoothly with colors.',
         ephemeral: true
       });
-      return;
     }
 
-    if (!memberData.ticketConfig) {
-      memberData.ticketConfig = {
-        channelId: null,
-        namePrefix: 'ticket',
-        ticketCounter: 0,
-        categoryId: null
-      };
-    }
+    // === /removergb ===
+    else if (interaction.commandName === 'removergb') {
+      const rgbRole = member.guild.roles.cache.find(r => r.name === 'RGB Name');
 
-    memberData.ticketConfig.channelId = channel.id;
-    memberData.ticketConfig.namePrefix = namePrefix;
-    memberData.ticketConfig.categoryId = category?.id || null;
+      if (!rgbRole || !member.roles.cache.has(rgbRole.id)) {
+        await interaction.reply({
+          content: '❌ You don’t currently have the RGB Name role.',
+          ephemeral: true
+        });
+        return;
+      }
 
-    saveData();
-
-    const embed = new EmbedBuilder()
-      .setTitle('Claim Panel')
-      .setDescription('To create a ticket use the **Create Ticket** button below.')
-      .setColor(0x5865F2);
-
-    const button = new ButtonBuilder()
-      .setCustomId('create_ticket')
-      .setLabel('📧 Create Ticket')
-      .setStyle(ButtonStyle.Primary);
-
-    const row = new ActionRowBuilder()
-      .addComponents(button);
-
-    try {
-      await channel.send({
-        embeds: [embed],
-        components: [row]
-      });
-
+      await member.roles.remove(rgbRole).catch(console.error);
       await interaction.reply({
-        content: `✅ Ticket system set up successfully!\n` +
-          `Channel: <#${channel.id}>\n` +
-          `Ticket Name: ${namePrefix}-1, ${namePrefix}-2, etc.\n` +
-          `Category: ${category ? `<#${category.id}>` : 'None (tickets in server root)'}`,
-        ephemeral: true
-      });
-    } catch (error) {
-      console.error('Error setting up ticket system:', error);
-      await interaction.reply({
-        content: `Error setting up ticket system: ${error.message}`,
+        content: '✅ RGB effect removed. Your name color is now normal again.',
         ephemeral: true
       });
     }
   }
+}
 
-  if (interaction.commandName === 'createroles') {
-    if (interaction.user.id !== '1309720025912971355') {
-      await interaction.reply({
-        content: 'You do not have permission to use this command.',
-        ephemeral: true
-      });
-      return;
-    }
-
-    await interaction.deferReply({ ephemeral: true });
-
-    try {
-      const guild = interaction.guild;
-      
-      // Get @everyone role permissions (member permissions)
-      const everyoneRole = guild.roles.everyone;
-      const memberPermissions = everyoneRole.permissions;
-
-      // Create Big Funder role (Red-ish RGB)
-      const bigFunder = await guild.roles.create({
-        name: 'Big Funder',
-        color: 0xFF0000, // Red
-        permissions: memberPermissions,
-        reason: 'Created by bot command'
-      });
-
-      // Create Middle Funder role (Green-ish RGB)
-      const middleFunder = await guild.roles.create({
-        name: 'Middle Funder',
-        color: 0x00FF00, // Green
-        permissions: memberPermissions,
-        reason: 'Created by bot command'
-      });
-
-      // Create Small Funder role (Blue-ish RGB)
-      const smallFunder = await guild.roles.create({
-        name: 'Small Funder',
-        color: 0x0000FF, // Blue
-        permissions: memberPermissions,
-        reason: 'Created by bot command'
-      });
-
-      await interaction.editReply({
-        content: `✅ Successfully created roles:\n` +
-          `🔴 ${bigFunder} - Red (RGB: 255, 0, 0)\n` +
-          `🟢 ${middleFunder} - Green (RGB: 0, 255, 0)\n` +
-          `🔵 ${smallFunder} - Blue (RGB: 0, 0, 255)\n\n` +
-          `All roles have the same permissions as @everyone (member permissions).`
-      });
-    } catch (error) {
-      console.error('Error creating roles:', error);
-      await interaction.editReply({
-        content: `Error creating roles: ${error.message}`
-      });
-    }
-  }
+// === Helper Function for Smooth Color Fade ===
+function hslToHex(h, s, l) {
+  s /= 100;
+  l /= 100;
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n =>
+    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return `#${Math.round(f(0) * 255).toString(16).padStart(2, '0')}${Math.round(f(8) * 255).toString(16).padStart(2, '0')}${Math.round(f(4) * 255).toString(16).padStart(2, '0')}`;
 }
 
 module.exports = { handleCommands };

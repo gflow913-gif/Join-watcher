@@ -1,64 +1,61 @@
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, REST, Routes } = require('discord.js');
+
+const commands = [
+  new SlashCommandBuilder()
+    .setName('checkuser')
+    .setDescription('Check user information'),
+
+  new SlashCommandBuilder()
+    .setName('stats')
+    .setDescription('Show server stats'),
+
+  new SlashCommandBuilder()
+    .setName('scanexisting')
+    .setDescription('Scan all existing members and record them'),
+
+  new SlashCommandBuilder()
+    .setName('unclaimed')
+    .setDescription('Show unclaimed join list'),
+
+  new SlashCommandBuilder()
+    .setName('claim')
+    .setDescription('Mark join as claimed')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('User to claim')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('setupticket')
+    .setDescription('Setup a ticket system'),
+
+  new SlashCommandBuilder()
+    .setName('createroles')
+    .setDescription('Create RGB color roles'),
+
+  // === New RGB Commands ===
+  new SlashCommandBuilder()
+    .setName('givergb')
+    .setDescription('Give yourself an RGB glowing name (Founder roles only)'),
+
+  new SlashCommandBuilder()
+    .setName('removergb')
+    .setDescription('Remove your RGB glowing name (Founder roles only)')
+].map(command => command.toJSON());
 
 async function registerCommands(client) {
-  const commands = [
-    new SlashCommandBuilder()
-      .setName('checkuser')
-      .setDescription('Check a user\'s eligibility and payment status')
-      .addUserOption(option =>
-        option.setName('user')
-          .setDescription('The user to check')
-          .setRequired(true)
-      ),
-    new SlashCommandBuilder()
-      .setName('stats')
-      .setDescription('Show overall server statistics'),
-    new SlashCommandBuilder()
-      .setName('scanexisting')
-      .setDescription('Scan existing members and mark them in the system (Admin only)'),
-    new SlashCommandBuilder()
-      .setName('unclaimed')
-      .setDescription('Show all unclaimed eligible joins'),
-    new SlashCommandBuilder()
-      .setName('claim')
-      .setDescription('Mark all unclaimed joins as claimed'),
-    new SlashCommandBuilder()
-      .setName('setupticket')
-      .setDescription('Set up the ticket system')
-      .addChannelOption(option =>
-        option.setName('channel')
-          .setDescription('The channel to send the ticket panel')
-          .setRequired(true))
-      .addStringOption(option =>
-        option.setName('nameprefix')
-          .setDescription('The prefix for ticket names (e.g., "ticket")')
-          .setRequired(true))
-      .addChannelOption(option =>
-        option.setName('category')
-          .setDescription('The category to create tickets in (optional)')
-          .setRequired(false)),
-    new SlashCommandBuilder()
-      .setName('createroles')
-      .setDescription('Create Big Funder, Middle Funder, and Small Funder roles with RGB colors')
-  ];
+  const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
   try {
-    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
-
-    console.log('Started refreshing application (/) commands.');
-
-    const guilds = client.guilds.cache.map(guild => guild.id);
-
-    for (const guildId of guilds) {
-      await rest.put(
-        Routes.applicationGuildCommands(client.user.id, guildId),
-        { body: commands },
-      );
-    }
-
-    console.log('Successfully reloaded application (/) commands.');
+    console.log('🔄 Registering slash commands...');
+    await rest.put(
+      Routes.applicationCommands(client.user.id),
+      { body: commands },
+    );
+    console.log('✅ Slash commands registered successfully!');
   } catch (error) {
-    console.error('Error registering commands:', error);
+    console.error('❌ Error registering commands:', error);
   }
 }
 
