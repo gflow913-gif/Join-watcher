@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, ChannelType } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -14,7 +14,13 @@ const client = new Client({
 let memberData = {
   members: {},
   totalEligibleJoins: 0,
-  totalPaymentDue: 0
+  totalPaymentDue: 0,
+  ticketConfig: {
+    channelId: null,
+    namePrefix: 'ticket',
+    ticketCounter: 0,
+    categoryId: null
+  }
 };
 
 function loadData() {
@@ -94,7 +100,25 @@ client.once('ready', async () => {
       .setDescription('Show all unclaimed eligible joins'),
     new SlashCommandBuilder()
       .setName('claim')
-      .setDescription('Mark all unclaimed joins as claimed')
+      .setDescription('Mark all unclaimed joins as claimed'),
+    new SlashCommandBuilder()
+      .setName('setupticket')
+      .setDescription('Set up ticket system in a channel')
+      .addChannelOption(option =>
+        option.setName('channel')
+          .setDescription('The channel to send the ticket panel')
+          .setRequired(true)
+      )
+      .addStringOption(option =>
+        option.setName('nameprefix')
+          .setDescription('Ticket name prefix (e.g., "join_claim" for join_claim-1)')
+          .setRequired(true)
+      )
+      .addChannelOption(option =>
+        option.setName('category')
+          .setDescription('Category to create tickets in (optional)')
+          .setRequired(false)
+      )
   ];
 
   try {
@@ -344,6 +368,123 @@ client.on('interactionCreate', async (interaction) => {
         `All eligible joins have been marked as claimed.`,
       ephemeral: true
     });
+  }
+
+  if (interaction.commandName === 'setupticket') {
+    if (interaction.user.id !== '1309720025912971355') {
+      await interaction.reply({
+        content: 'You do not have permission to use this command.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    const channel = interaction.options.getChannel('channel');
+    const namePrefix = interaction.options.getString('nameprefix');
+    const category = interaction.options.getChannel('category');
+
+    memberData.ticketConfig.channelId = channel.id;
+    memberData.ticketConfig.namePrefix = namePrefix;
+    memberData.ticketConfig.categoryId = category?.id || null;
+
+    saveData();
+
+    const embed = new EmbedBuilder()
+      .setTitle('Claim Panel')
+      .setDescription('To create a ticket use the **Create Ticket** button below.')
+      .setColor(0x5865F2);
+
+    const button = new ButtonBuilder()
+      .setCustomId('create_ticket')
+      .setLabel('📧 Create Ticket')
+      .setStyle(ButtonStyle.Primary);
+
+    const row = new ActionRowBuilder()
+      .addComponents(button);
+
+    try {
+      await channel.send({
+        embeds: [embed],
+        components: [row]
+      });
+
+      await interaction.reply({
+        content: `✅ Ticket system set up successfully!\n` +
+          `Channel: <#${channel.id}>\n` +
+          `Ticket Name: ${namePrefix}-1, ${namePrefix}-2, etc.\n` +
+          `Category: ${category ? `<#${category.id}>` : 'None (tickets in server root)'}`,
+        ephemeral: true
+      });
+    } catch (error) {
+      console.error('Error setting up ticket system:', error);
+      await interaction.reply({
+        content: `Error setting up ticket system: ${error.message}`,
+        ephemeral: true
+      });
+    }
+  }
+
+  if (interaction.isButton() && interaction.customId === 'create_ticket') {
+    const ticketConfig = memberData.ticketConfig;
+
+    if (!ticketConfig.channelId) {
+      await interaction.reply({
+        content: 'Ticket system is not set up yet.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    ticketConfig.ticketCounter++;
+    const ticketName = `${ticketConfig.namePrefix}-${ticketConfig.ticketCounter}`;
+
+    saveData();
+
+    try {
+      const ticketChannel = await interaction.guild.channels.create({
+        name: ticketName,
+        type: ChannelType.GuildText,
+        parent: ticketConfig.categoryId,
+        permissionOverwrites: [
+          {
+            id: interaction.guild.id,
+            deny: [PermissionFlagsBits.ViewChannel]
+          },
+          {
+            id: interaction.user.id,
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory
+            ]
+          },
+          {
+            id: client.user.id,
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory
+            ]
+          }
+        ]
+      });
+
+      await interaction.reply({
+        content: `✅ Ticket created: <#${ticketChannel.id}>`,
+        ephemeral: true
+      });
+
+      await ticketChannel.send({
+        content: `Welcome <@${interaction.user.id}>! This is your private ticket channel.\n\nIt may take up to 24 hours for a payout manager to respond. So please have some patience.`
+      });
+
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      await interaction.reply({
+        content: `Error creating ticket: ${error.message}`,
+        ephemeral: true
+      });
+    }
   }
 });
 
