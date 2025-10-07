@@ -62,7 +62,12 @@ const commands = [
   // === Clean Duplicate Roles ===
   new SlashCommandBuilder()
     .setName('cleanduplicates')
-    .setDescription('Remove duplicate Founder roles (Owner only)')
+    .setDescription('Remove duplicate Founder roles (Owner only)'),
+
+  // === Start RGB Animation ===
+  new SlashCommandBuilder()
+    .setName('startrgb')
+    .setDescription('Start RGB animation for Founder roles (Owner only)')
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {

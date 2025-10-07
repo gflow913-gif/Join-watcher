@@ -132,6 +132,25 @@ async function handleFounderCommands(interaction) {
     return true;
   }
 
+  if (interaction.commandName === 'startrgb') {
+    if (userId !== ownerId) {
+      await interaction.reply({
+        content: '🚫 You are not authorized to use this command.',
+        ephemeral: true
+      });
+      return true;
+    }
+
+    const { startFounderRgbAnimation } = require('../utils/founderRgbAnimation');
+    startFounderRgbAnimation(interaction.client);
+    
+    await interaction.reply({
+      content: '🌈 RGB animation started!\n\n⚠️ **Warning:** This will cause rate limits and slow down other commands. RGB updates every 5 seconds per role.',
+      ephemeral: true
+    });
+    return true;
+  }
+
   return false;
 }
 

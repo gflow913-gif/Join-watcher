@@ -17,7 +17,8 @@ client.once('ready', async () => {
   console.log(`Bot is ready! Logged in as ${client.user.tag}`);
   loadData();
   await registerCommands(client);
-  startFounderRgbAnimation(client);
+  console.log('⚠️ RGB animation disabled to prevent rate limits');
+  console.log('💡 Use /startrgb command to enable RGB animation when needed');
 });
 
 client.on('guildMemberAdd', (member) => handleMemberJoin(member, client));
