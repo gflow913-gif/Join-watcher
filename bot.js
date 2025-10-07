@@ -249,6 +249,14 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   if (interaction.commandName === 'unclaimed') {
+    if (interaction.user.id !== '1309720025912971355') {
+      await interaction.reply({
+        content: 'You do not have permission to use this command.',
+        ephemeral: true
+      });
+      return;
+    }
+
     const unclaimedJoins = [];
     
     for (const [userId, userData] of Object.entries(memberData.members)) {
@@ -298,6 +306,14 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   if (interaction.commandName === 'claim') {
+    if (interaction.user.id !== '1309720025912971355') {
+      await interaction.reply({
+        content: 'You do not have permission to use this command.',
+        ephemeral: true
+      });
+      return;
+    }
+
     let claimedCount = 0;
     let claimedAmount = 0;
 
