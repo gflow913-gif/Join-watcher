@@ -210,6 +210,14 @@ async function handleCommands(interaction, client) {
     const namePrefix = interaction.options.getString('nameprefix');
     const category = interaction.options.getChannel('category');
 
+    if (category && category.type !== 4) {
+      await interaction.reply({
+        content: '❌ The category must be a category channel, not a text/voice channel!',
+        ephemeral: true
+      });
+      return;
+    }
+
     if (!memberData.ticketConfig) {
       memberData.ticketConfig = {
         channelId: null,
