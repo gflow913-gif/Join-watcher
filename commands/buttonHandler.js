@@ -1,7 +1,5 @@
-
 const { memberData, saveData } = require('../utils/dataManager');
 const { PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { memberData, saveData } = require('../utils/dataManager');
 
 async function handleButtons(interaction, client) {
   if (interaction.customId === 'create_ticket') {
