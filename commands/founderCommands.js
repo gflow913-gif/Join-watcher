@@ -12,8 +12,6 @@ async function handleFounderCommands(interaction) {
       return true;
     }
 
-    await interaction.deferReply({ ephemeral: true });
-
     const targetUser = interaction.options.getUser('user');
     const roleName = interaction.options.getString('role');
     const guild = interaction.guild;
@@ -43,8 +41,9 @@ async function handleFounderCommands(interaction) {
     }
 
     await targetMember.roles.add(founderRole).catch(console.error);
-    await interaction.editReply({
-      content: `✅ Successfully assigned **${roleName}** role to ${targetUser.username}!`
+    await interaction.reply({
+      content: `✅ Successfully assigned **${roleName}** role to ${targetUser.username}!`,
+      ephemeral: true
     });
     return true;
   }
@@ -57,8 +56,6 @@ async function handleFounderCommands(interaction) {
       });
       return true;
     }
-
-    await interaction.deferReply({ ephemeral: true });
 
     const guild = interaction.guild;
     const founderRoleNames = ['Big Founder', 'Middle Founder', 'Small Founder'];
@@ -88,7 +85,7 @@ async function handleFounderCommands(interaction) {
     }
 
     message += `\n📊 Fixed ${fixedCount} role(s). RGB animation should work now!`;
-    await interaction.editReply({ content: message });
+    await interaction.reply({ content: message, ephemeral: true });
     return true;
   }
 

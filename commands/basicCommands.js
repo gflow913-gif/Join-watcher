@@ -17,8 +17,6 @@ async function handleBasicCommands(interaction) {
   }
 
   if (interaction.commandName === 'scanexisting') {
-    await interaction.deferReply({ ephemeral: true });
-    
     const guild = interaction.guild;
     const members = await guild.members.fetch();
     let count = 0;
@@ -31,7 +29,7 @@ async function handleBasicCommands(interaction) {
     });
 
     saveData();
-    await interaction.editReply({ content: `🔍 Scanned ${count} new members and added to database.` });
+    await interaction.reply({ content: `🔍 Scanned ${count} new members and added to database.`, ephemeral: true });
     return true;
   }
 

@@ -21,8 +21,6 @@ async function handleRgbCommands(interaction) {
   }
 
   if (interaction.commandName === 'givergb') {
-    await interaction.deferReply({ ephemeral: true });
-    
     let rgbRole = guild.roles.cache.find(r => r.name === 'RGB Name');
 
     if (!rgbRole) {
@@ -43,8 +41,9 @@ async function handleRgbCommands(interaction) {
     }
 
     await member.roles.add(rgbRole).catch(console.error);
-    await interaction.editReply({
-      content: '🌈 RGB effect added! Your name will now glow smoothly with colors.'
+    await interaction.reply({
+      content: '🌈 RGB effect added! Your name will now glow smoothly with colors.',
+      ephemeral: true
     });
     return true;
   }
