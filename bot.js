@@ -532,6 +532,7 @@ client.on('interactionCreate', async (interaction) => {
         ephemeral: true
       });
     }
+  }
 
     if (interaction.customId === 'close_ticket') {
     if (!memberData.activeTickets) {
@@ -572,7 +573,7 @@ client.on('interactionCreate', async (interaction) => {
         console.error('Error deleting ticket channel:', error);
       }
     }, 3000);
-    }
+  }
   }
 });
 
