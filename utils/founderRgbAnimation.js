@@ -16,13 +16,14 @@ async function startFounderRgbAnimation(client) {
 
   setInterval(async () => {
     hue = (hue + 3) % 360;
-    const color = hslToHex(hue, 100, 50);
+    const colorHex = hslToHex(hue, 100, 50);
+    const colorInt = parseInt(colorHex.replace('#', ''), 16);
 
     client.guilds.cache.forEach(async (guild) => {
       founderRoles.forEach(async (roleName) => {
         const role = guild.roles.cache.find(r => r.name === roleName);
         if (role) {
-          await role.setColor(color).catch(() => {});
+          await role.edit({ color: colorInt }).catch(() => {});
         }
       });
     });

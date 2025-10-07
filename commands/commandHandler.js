@@ -187,8 +187,12 @@ async function handleCommands(interaction) {
     if (!founderRole) {
       founderRole = await guild.roles.create({
         name: roleName,
+        color: 0xFF0000,
+        hoist: true,
         reason: `Created by ${interaction.user.username} for Founder role system`
       });
+    } else {
+      await founderRole.edit({ hoist: true }).catch(console.error);
     }
 
     await targetMember.roles.add(founderRole).catch(console.error);
