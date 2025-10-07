@@ -1,6 +1,7 @@
 
 const { memberData, saveData } = require('../utils/dataManager');
 const { PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { memberData, saveData } = require('../utils/dataManager');
 
 async function handleButtons(interaction, client) {
   if (interaction.customId === 'create_ticket') {
@@ -30,8 +31,6 @@ async function handleButtons(interaction, client) {
       });
       return;
     }
-
-    await interaction.deferReply({ ephemeral: true });
 
     ticketConfig.ticketCounter++;
     const ticketName = `${ticketConfig.namePrefix}-${ticketConfig.ticketCounter}`;
@@ -78,8 +77,9 @@ async function handleButtons(interaction, client) {
       memberData.activeTickets[interaction.user.id] = ticketChannel.id;
       saveData();
 
-      await interaction.editReply({
-        content: `✅ Ticket created: <#${ticketChannel.id}>`
+      await interaction.reply({
+        content: `✅ Ticket created: <#${ticketChannel.id}>`,
+        ephemeral: true
       });
 
       const closeButton = new ButtonBuilder()
@@ -97,8 +97,9 @@ async function handleButtons(interaction, client) {
 
     } catch (error) {
       console.error('Error creating ticket:', error);
-      await interaction.editReply({
-        content: `Error creating ticket: ${error.message}`
+      await interaction.reply({
+        content: `Error creating ticket: ${error.message}`,
+        ephemeral: true
       });
     }
   }
