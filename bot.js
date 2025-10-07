@@ -532,7 +532,6 @@ client.on('interactionCreate', async (interaction) => {
         ephemeral: true
       });
     }
-  }
 
     if (interaction.customId === 'close_ticket') {
     if (!memberData.activeTickets) {
