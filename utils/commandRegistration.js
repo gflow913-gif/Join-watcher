@@ -67,7 +67,12 @@ const commands = [
   // === Start RGB Animation ===
   new SlashCommandBuilder()
     .setName('startrgb')
-    .setDescription('Start RGB animation for Founder roles (Owner only)')
+    .setDescription('Start RGB animation for Founder roles (Owner only)'),
+
+  // === Setup Claim Panel ===
+  new SlashCommandBuilder()
+    .setName('setupclaimpanel')
+    .setDescription('Setup the claim panel in the designated channel')
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {

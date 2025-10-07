@@ -1,5 +1,6 @@
 
 const { memberData, saveData } = require('../utils/dataManager');
+const { markInviteAsClaimed, getTotalInvites } = require('../utils/inviteTracker');
 
 async function handleBasicCommands(interaction) {
   if (interaction.commandName === 'checkuser') {
@@ -48,14 +49,28 @@ async function handleBasicCommands(interaction) {
 
   if (interaction.commandName === 'claim') {
     const user = interaction.options.getUser('user');
-    if (!memberData[user.id]) {
+    if (!user) {
+      await interaction.reply({ content: '❌ No user specified.', ephemeral: true });
+      return true;
+    }
+    if (!memberData.members || !memberData.members[user.id]) {
       await interaction.reply({ content: '❌ User not found in database.', ephemeral: true });
       return true;
     }
 
-    memberData[user.id].claimed = true;
-    saveData();
-    await interaction.reply({ content: `✅ Marked ${user.username} as claimed.`, ephemeral: true });
+    const member = memberData.members[user.id];
+    if (member.inviterId) {
+      markInviteAsClaimed(member.inviterId, user.id);
+      const newTotal = getTotalInvites(member.inviterId);
+      await interaction.reply({ 
+        content: `✅ Marked ${user.username} as claimed. Inviter's new total: ${newTotal}`, 
+        ephemeral: true 
+      });
+    } else {
+      member.claimed = true;
+      saveData();
+      await interaction.reply({ content: `✅ Marked ${user.username} as claimed (no inviter found).`, ephemeral: true });
+    }
     return true;
   }
 

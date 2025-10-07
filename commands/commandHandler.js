@@ -2,6 +2,7 @@ const { handleBasicCommands } = require('./basicCommands');
 const { handleTicketCommands } = require('./ticketCommands');
 const { handleRgbCommands } = require('./rgbCommands');
 const { handleFounderCommands } = require('./founderCommands');
+const { handleClaimCommands } = require('./claimCommands');
 
 // ===== MAIN COMMAND HANDLER =====
 async function handleCommands(interaction) {
@@ -12,6 +13,7 @@ async function handleCommands(interaction) {
   if (await handleTicketCommands(interaction)) return;
   if (await handleRgbCommands(interaction)) return;
   if (await handleFounderCommands(interaction)) return;
+  if (await handleClaimCommands(interaction)) return;
 }
 
 // === Helper Function for Smooth Color Fade ===

@@ -14,7 +14,9 @@ let memberData = {
     ticketCounter: 0,
     categoryId: null
   },
-  activeTickets: {}
+  activeTickets: {},
+  invites: {},
+  inviteTracker: {}
 };
 
 function loadData() {

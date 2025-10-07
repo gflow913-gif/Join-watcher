@@ -1,4 +1,5 @@
 const { memberData, saveData } = require('../utils/dataManager');
+const { getTotalInvites } = require('../utils/inviteTracker');
 const { PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 async function handleButtons(interaction, client) {
@@ -12,28 +13,16 @@ async function handleButtons(interaction, client) {
       };
     }
 
-    const ticketConfig = memberData.ticketConfig;
-
-    if (!ticketConfig.channelId) {
-      await interaction.reply({
-        content: 'Ticket system is not set up yet.',
-        ephemeral: true
-      });
-      return;
-    }
-
     if (memberData.activeTickets[interaction.user.id]) {
       await interaction.reply({
-        content: `❌ You already have an active ticket: <#${memberData.activeTickets[interaction.user.id]}>`,
+        content: `You already have an open ticket.`,
         ephemeral: true
       });
       return;
     }
 
-    ticketConfig.ticketCounter++;
-    const ticketName = `${ticketConfig.namePrefix}-${ticketConfig.ticketCounter}`;
-
-    saveData();
+    const ticketConfig = memberData.ticketConfig;
+    const ticketName = `ticket-${interaction.user.username}`;
 
     try {
       const ticketChannel = await interaction.guild.channels.create({
@@ -47,14 +36,6 @@ async function handleButtons(interaction, client) {
           },
           {
             id: interaction.user.id,
-            allow: [
-              PermissionFlagsBits.ViewChannel,
-              PermissionFlagsBits.SendMessages,
-              PermissionFlagsBits.ReadMessageHistory
-            ]
-          },
-          {
-            id: '1309720025912971355',
             allow: [
               PermissionFlagsBits.ViewChannel,
               PermissionFlagsBits.SendMessages,
@@ -80,17 +61,24 @@ async function handleButtons(interaction, client) {
         ephemeral: true
       });
 
+      const totalInvites = getTotalInvites(interaction.user.id);
+
       const closeButton = new ButtonBuilder()
         .setCustomId('close_ticket')
         .setLabel('🔒 Close Ticket')
+        .setStyle(ButtonStyle.Secondary);
+
+      const deleteButton = new ButtonBuilder()
+        .setCustomId('delete_ticket')
+        .setLabel('🗑️ Delete Ticket')
         .setStyle(ButtonStyle.Danger);
 
-      const closeRow = new ActionRowBuilder()
-        .addComponents(closeButton);
+      const row = new ActionRowBuilder()
+        .addComponents(closeButton, deleteButton);
 
       await ticketChannel.send({
-        content: `Welcome <@${interaction.user.id}>! This is your private ticket channel.\n\nIt may take up to 24 hours for a payout manager to respond. So please have some patience.`,
-        components: [closeRow]
+        content: `<@${interaction.user.id}>\n\nYou will get **${totalInvites}** reward(s) for your total invites.\nPlease wait for a staff member to verify your claim.`,
+        components: [row]
       });
 
     } catch (error) {
@@ -119,9 +107,35 @@ async function handleButtons(interaction, client) {
       return;
     }
 
-    if (interaction.user.id !== userId && interaction.user.id !== '1309720025912971355') {
+    try {
+      await interaction.channel.permissionOverwrites.edit(userId, {
+        SendMessages: false
+      });
+
       await interaction.reply({
-        content: 'Only the ticket creator or the owner can close this ticket.',
+        content: '🔒 Ticket has been locked.'
+      });
+    } catch (error) {
+      console.error('Error locking ticket:', error);
+      await interaction.reply({
+        content: 'Error locking ticket.',
+        ephemeral: true
+      });
+    }
+  }
+
+  if (interaction.customId === 'delete_ticket') {
+    if (!memberData.activeTickets) {
+      memberData.activeTickets = {};
+    }
+
+    const userId = Object.keys(memberData.activeTickets).find(
+      key => memberData.activeTickets[key] === interaction.channel.id
+    );
+
+    if (!userId) {
+      await interaction.reply({
+        content: 'This ticket is not tracked.',
         ephemeral: true
       });
       return;
@@ -131,7 +145,7 @@ async function handleButtons(interaction, client) {
     saveData();
 
     await interaction.reply({
-      content: '🔒 Ticket is being closed...'
+      content: '🗑️ Ticket is being deleted...'
     });
 
     setTimeout(async () => {
