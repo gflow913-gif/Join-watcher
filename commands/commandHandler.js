@@ -122,6 +122,7 @@ async function handleCommands(interaction) {
         rgbRole = await guild.roles.create({
           name: 'RGB Name',
           color: 0xff0000,
+          position: guild.roles.cache.size - 1, // Position at top of role list
           reason: 'Created for RGB glowing name system'
         });
 
@@ -129,10 +130,10 @@ async function handleCommands(interaction) {
         let hue = 0;
         setInterval(async () => {
           if (!rgbRole || !guild.roles.cache.has(rgbRole.id)) return;
-          hue = (hue + 5) % 360;
+          hue = (hue + 8) % 360;
           const color = hslToHex(hue, 100, 50);
           await rgbRole.setColor(color).catch(() => {});
-        }, 1000); // changes smoothly every 1 second
+        }, 500); // changes smoothly every 0.5 seconds
       }
 
       await member.roles.add(rgbRole).catch(console.error);

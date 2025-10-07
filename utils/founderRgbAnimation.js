@@ -15,7 +15,7 @@ async function startFounderRgbAnimation(client) {
   let hue = 0;
 
   setInterval(async () => {
-    hue = (hue + 3) % 360;
+    hue = (hue + 6) % 360;
     const colorHex = hslToHex(hue, 100, 50);
     const colorInt = parseInt(colorHex.replace('#', ''), 16);
 
@@ -27,7 +27,7 @@ async function startFounderRgbAnimation(client) {
         }
       });
     });
-  }, 1000);
+  }, 500);
 
   console.log('✅ Founder RGB animation started successfully!');
 }
