@@ -54,7 +54,7 @@ async function handleRgbCommands(interaction) {
 
     if (!rgbRole || !member.roles.cache.has(rgbRole.id)) {
       await interaction.reply({
-        content: '❌ You don't currently have the RGB Name role.',
+        content: '❌ You don\'t currently have the RGB Name role.',
         ephemeral: true
       });
       return true;
