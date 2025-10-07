@@ -41,11 +41,31 @@ const commands = [
 
   new SlashCommandBuilder()
     .setName('removergb')
-    .setDescription('Remove your RGB glowing name (Founder roles only)')
+    .setDescription('Remove your RGB glowing name (Founder roles only)'),
+
+  // === Founder Role Assignment ===
+  new SlashCommandBuilder()
+    .setName('givefounder')
+    .setDescription('Assign a Founder role to a user (Owner only)')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('The user to give the Founder role to')
+        .setRequired(true)
+    )
+    .addStringOption(option =>
+      option.setName('role')
+        .setDescription('Select the Founder role to assign')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Big Founder', value: 'Big Founder' },
+          { name: 'Middle Founder', value: 'Middle Founder' },
+          { name: 'Small Founder', value: 'Small Founder' }
+        )
+    )
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {
-  const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
 
   try {
     console.log('🔄 Registering slash commands...');

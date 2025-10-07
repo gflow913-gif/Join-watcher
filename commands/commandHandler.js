@@ -161,6 +161,42 @@ async function handleCommands(interaction) {
       });
     }
   }
+
+  // =====================
+  // === FOUNDER ROLE ASSIGNMENT (OWNER ONLY) ===
+  // =====================
+  else if (interaction.commandName === 'givefounder') {
+    const ownerId = '1309720025912971355';
+    const userId = interaction.user.id;
+
+    if (userId !== ownerId) {
+      await interaction.reply({
+        content: '🚫 You are not authorized to use this command. Only the bot owner can assign Founder roles.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    const targetUser = interaction.options.getUser('user');
+    const roleName = interaction.options.getString('role');
+    const guild = interaction.guild;
+    const targetMember = await guild.members.fetch(targetUser.id);
+
+    let founderRole = guild.roles.cache.find(r => r.name === roleName);
+
+    if (!founderRole) {
+      founderRole = await guild.roles.create({
+        name: roleName,
+        reason: `Created by ${interaction.user.username} for Founder role system`
+      });
+    }
+
+    await targetMember.roles.add(founderRole).catch(console.error);
+    await interaction.reply({
+      content: `✅ Successfully assigned **${roleName}** role to ${targetUser.username}!`,
+      ephemeral: true
+    });
+  }
 }
 
 // === Helper Function for Smooth Color Fade ===
