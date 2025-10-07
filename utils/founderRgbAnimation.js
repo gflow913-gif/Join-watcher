@@ -25,7 +25,7 @@ async function startFounderRgbAnimation(client) {
         const role = guild.roles.cache.find(r => r.name === roleName);
         if (role) {
           try {
-            await role.edit({ color: colorInt });
+            await role.setColor(colorInt);
             updateCount++;
             if (updateCount % 50 === 0) {
               console.log(`🎨 RGB Update #${updateCount}: ${roleName} → ${colorHex}`);

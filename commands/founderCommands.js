@@ -25,7 +25,6 @@ async function handleFounderCommands(interaction) {
       
       founderRole = await guild.roles.create({
         name: roleName,
-        color: 0xFF0000,
         hoist: true,
         position: botTopRole.position - 1,
         reason: `Created by ${interaction.user.username} for Founder role system`
@@ -71,8 +70,7 @@ async function handleFounderCommands(interaction) {
         try {
           await role.edit({
             hoist: true,
-            position: botTopRole.position - 1,
-            color: 0xFF0000
+            position: botTopRole.position - 1
           });
           message += `✅ Fixed: ${roleName}\n`;
           fixedCount++;
