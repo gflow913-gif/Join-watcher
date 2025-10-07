@@ -34,15 +34,6 @@ const commands = [
     .setName('createroles')
     .setDescription('Create RGB color roles'),
 
-  // === New RGB Commands ===
-  new SlashCommandBuilder()
-    .setName('givergb')
-    .setDescription('Give yourself an RGB glowing name (Founder roles only)'),
-
-  new SlashCommandBuilder()
-    .setName('removergb')
-    .setDescription('Remove your RGB glowing name (Founder roles only)'),
-
   // === Founder Role Assignment ===
   new SlashCommandBuilder()
     .setName('givefounder')

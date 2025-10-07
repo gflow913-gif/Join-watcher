@@ -5,90 +5,34 @@ async function handleRgbCommands(interaction) {
   }
 
   const member = interaction.member;
-  const guild = interaction.guild;
   const userId = interaction.user.id;
   const ownerId = '1309720025912971355';
-  const allowedRoles = ['Big Founder', 'Middle Founder', 'Small Founder'];
 
-  const isAllowed = userId === ownerId || member.roles.cache.some(r => allowedRoles.includes(r.name));
-
-  if (!isAllowed) {
+  if (userId !== ownerId) {
     await interaction.reply({
-      content: '🚫 You are not allowed to use this command. Only Founders and the bot owner can use it.',
+      content: '🚫 You are not allowed to use this command. Only the bot owner can manage RGB roles.',
       ephemeral: true
     });
     return true;
   }
 
   if (interaction.commandName === 'givergb') {
-    let rgbRole = guild.roles.cache.find(r => r.name === 'RGB Name');
-
-    if (!rgbRole) {
-      const botMember = await guild.members.fetch(interaction.client.user.id);
-      const botTopRole = botMember.roles.highest;
-      
-      rgbRole = await guild.roles.create({
-        name: 'RGB Name',
-        color: 0xff0000,
-        position: botTopRole.position - 1,
-        hoist: false,
-        reason: 'Created for RGB glowing name system'
-      });
-
-      let hue = 0;
-      setInterval(async () => {
-        if (!rgbRole || !guild.roles.cache.has(rgbRole.id)) return;
-        hue = (hue + 8) % 360;
-        const color = hslToHex(hue, 100, 50);
-        await rgbRole.setColor(color).catch(() => {});
-      }, 500);
-    } else {
-      const botMember = await guild.members.fetch(interaction.client.user.id);
-      const botTopRole = botMember.roles.highest;
-      
-      await rgbRole.edit({
-        position: botTopRole.position - 1
-      }).catch(console.error);
-    }
-
-    await member.roles.add(rgbRole).catch(console.error);
     await interaction.reply({
-      content: '🌈 RGB effect added! Your name will now glow smoothly with colors.\n\n⚠️ **Note:** If you have other colored roles, make sure "RGB Name" is positioned above them in Server Settings → Roles for the effect to show.',
+      content: '❌ This command has been removed.\n\n✨ **RGB is now built into Founder roles!**\n\nUse `/givefounder` to assign a Founder role instead:\n• Big Founder\n• Middle Founder\n• Small Founder\n\nAll Founder roles automatically have rainbow RGB animation! 🌈',
       ephemeral: true
     });
     return true;
   }
 
   if (interaction.commandName === 'removergb') {
-    const rgbRole = member.guild.roles.cache.find(r => r.name === 'RGB Name');
-
-    if (!rgbRole || !member.roles.cache.has(rgbRole.id)) {
-      await interaction.reply({
-        content: '❌ You don\'t currently have the RGB Name role.',
-        ephemeral: true
-      });
-      return true;
-    }
-
-    await member.roles.remove(rgbRole).catch(console.error);
     await interaction.reply({
-      content: '✅ RGB effect removed. Your name color is now normal again.',
+      content: '❌ This command has been removed.\n\n✨ **RGB is now built into Founder roles!**\n\nTo remove RGB effect, simply remove the Founder role from the user in Server Settings → Members.',
       ephemeral: true
     });
     return true;
   }
 
   return false;
-}
-
-function hslToHex(h, s, l) {
-  s /= 100;
-  l /= 100;
-  const k = n => (n + h / 30) % 12;
-  const a = s * Math.min(l, 1 - l);
-  const f = n =>
-    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-  return `#${Math.round(f(0) * 255).toString(16).padStart(2, '0')}${Math.round(f(8) * 255).toString(16).padStart(2, '0')}${Math.round(f(4) * 255).toString(16).padStart(2, '0')}`;
 }
 
 module.exports = { handleRgbCommands };
