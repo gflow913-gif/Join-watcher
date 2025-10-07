@@ -24,10 +24,14 @@ async function handleRgbCommands(interaction) {
     let rgbRole = guild.roles.cache.find(r => r.name === 'RGB Name');
 
     if (!rgbRole) {
+      const botMember = await guild.members.fetch(interaction.client.user.id);
+      const botTopRole = botMember.roles.highest;
+      
       rgbRole = await guild.roles.create({
         name: 'RGB Name',
         color: 0xff0000,
-        position: guild.roles.cache.size - 1,
+        position: botTopRole.position - 1,
+        hoist: false,
         reason: 'Created for RGB glowing name system'
       });
 
@@ -38,11 +42,18 @@ async function handleRgbCommands(interaction) {
         const color = hslToHex(hue, 100, 50);
         await rgbRole.setColor(color).catch(() => {});
       }, 500);
+    } else {
+      const botMember = await guild.members.fetch(interaction.client.user.id);
+      const botTopRole = botMember.roles.highest;
+      
+      await rgbRole.edit({
+        position: botTopRole.position - 1
+      }).catch(console.error);
     }
 
     await member.roles.add(rgbRole).catch(console.error);
     await interaction.reply({
-      content: '🌈 RGB effect added! Your name will now glow smoothly with colors.',
+      content: '🌈 RGB effect added! Your name will now glow smoothly with colors.\n\n⚠️ **Note:** If you have other colored roles, make sure "RGB Name" is positioned above them in Server Settings → Roles for the effect to show.',
       ephemeral: true
     });
     return true;
