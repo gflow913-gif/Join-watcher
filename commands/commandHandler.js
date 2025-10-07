@@ -1,5 +1,5 @@
 const { ChannelType } = require('discord.js');
-const { memberData, saveData } = require('./utils/dataManager');
+const { memberData, saveData } = require('../utils/dataManager');
 
 // ===== MAIN COMMAND HANDLER =====
 async function handleCommands(interaction) {
