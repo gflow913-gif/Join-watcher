@@ -53,7 +53,8 @@ function checkEligibility(userId, isNewMember) {
   
   member.joins.push({
     timestamp: now,
-    isNewMember: isNewMember
+    isNewMember: isNewMember,
+    claimed: false
   });
 
   if (isNewMember) {
@@ -87,7 +88,13 @@ client.once('ready', async () => {
       .setDescription('Show overall server statistics'),
     new SlashCommandBuilder()
       .setName('scanexisting')
-      .setDescription('Scan existing members and mark them in the system (Admin only)')
+      .setDescription('Scan existing members and mark them in the system (Admin only)'),
+    new SlashCommandBuilder()
+      .setName('unclaimed')
+      .setDescription('Show all unclaimed eligible joins'),
+    new SlashCommandBuilder()
+      .setName('claim')
+      .setDescription('Mark all unclaimed joins as claimed')
   ];
 
   try {
@@ -210,6 +217,7 @@ client.on('interactionCreate', async (interaction) => {
             joins: [{
               timestamp: member.joinedAt?.toISOString() || new Date().toISOString(),
               isNewMember: false,
+              claimed: true,
               note: 'Pre-existing member (scanned, not eligible for payment)'
             }],
             eligibleJoins: 0,
@@ -238,6 +246,88 @@ client.on('interactionCreate', async (interaction) => {
         content: `Error scanning members: ${error.message}`
       });
     }
+  }
+
+  if (interaction.commandName === 'unclaimed') {
+    const unclaimedJoins = [];
+    
+    for (const [userId, userData] of Object.entries(memberData.members)) {
+      userData.joins.forEach((join, index) => {
+        if (join.isNewMember && !join.claimed) {
+          unclaimedJoins.push({
+            userId: userId,
+            timestamp: join.timestamp,
+            joinIndex: index
+          });
+        }
+      });
+    }
+
+    if (unclaimedJoins.length === 0) {
+      await interaction.reply({
+        content: '**No Unclaimed Joins**\nAll eligible joins have been claimed!',
+        ephemeral: true
+      });
+      return;
+    }
+
+    const totalUnclaimed = unclaimedJoins.length;
+    const totalUnclaimedPayment = totalUnclaimed * 2;
+
+    let message = `**Unclaimed Eligible Joins**\n`;
+    message += `Total Unclaimed: ${totalUnclaimed}\n`;
+    message += `Total Payment Due: ${totalUnclaimedPayment}sx\n\n`;
+
+    const displayLimit = 20;
+    const displayJoins = unclaimedJoins.slice(0, displayLimit);
+
+    for (const join of displayJoins) {
+      const user = await client.users.fetch(join.userId).catch(() => null);
+      const userName = user ? user.tag : `User ID: ${join.userId}`;
+      message += `• ${userName} - ${new Date(join.timestamp).toLocaleString()} - 2sx\n`;
+    }
+
+    if (unclaimedJoins.length > displayLimit) {
+      message += `\n...and ${unclaimedJoins.length - displayLimit} more`;
+    }
+
+    await interaction.reply({
+      content: message,
+      ephemeral: true
+    });
+  }
+
+  if (interaction.commandName === 'claim') {
+    let claimedCount = 0;
+    let claimedAmount = 0;
+
+    for (const [userId, userData] of Object.entries(memberData.members)) {
+      userData.joins.forEach((join) => {
+        if (join.isNewMember && !join.claimed) {
+          join.claimed = true;
+          claimedCount++;
+          claimedAmount += 2;
+        }
+      });
+    }
+
+    if (claimedCount === 0) {
+      await interaction.reply({
+        content: '**No Unclaimed Joins**\nThere are no eligible joins to claim.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    saveData();
+
+    await interaction.reply({
+      content: `**Joins Claimed Successfully!**\n` +
+        `Claimed Joins: ${claimedCount}\n` +
+        `Total Amount Claimed: ${claimedAmount}sx\n\n` +
+        `All eligible joins have been marked as claimed.`,
+      ephemeral: true
+    });
   }
 });
 
