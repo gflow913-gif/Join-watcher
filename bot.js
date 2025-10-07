@@ -175,9 +175,8 @@ client.on('guildMemberAdd', async (member) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  if (interaction.commandName === 'checkuser') {
+  if (interaction.isChatInputCommand()) {
+    if (interaction.commandName === 'checkuser') {
     const user = interaction.options.getUser('user');
     const userData = memberData.members[user.id];
 
@@ -434,7 +433,8 @@ client.on('interactionCreate', async (interaction) => {
     }
   }
 
-  if (interaction.isButton() && interaction.customId === 'create_ticket') {
+  if (interaction.isButton()) {
+    if (interaction.customId === 'create_ticket') {
     if (!memberData.ticketConfig) {
       memberData.ticketConfig = {
         channelId: null,
@@ -532,9 +532,8 @@ client.on('interactionCreate', async (interaction) => {
         ephemeral: true
       });
     }
-  }
 
-  if (interaction.isButton() && interaction.customId === 'close_ticket') {
+    if (interaction.customId === 'close_ticket') {
     if (!memberData.activeTickets) {
       memberData.activeTickets = {};
     }
@@ -573,6 +572,7 @@ client.on('interactionCreate', async (interaction) => {
         console.error('Error deleting ticket channel:', error);
       }
     }, 3000);
+    }
   }
 });
 
