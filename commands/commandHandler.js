@@ -267,6 +267,63 @@ async function handleCommands(interaction, client) {
       });
     }
   }
+
+  if (interaction.commandName === 'createroles') {
+    if (interaction.user.id !== '1309720025912971355') {
+      await interaction.reply({
+        content: 'You do not have permission to use this command.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    await interaction.deferReply({ ephemeral: true });
+
+    try {
+      const guild = interaction.guild;
+      
+      // Get @everyone role permissions (member permissions)
+      const everyoneRole = guild.roles.everyone;
+      const memberPermissions = everyoneRole.permissions;
+
+      // Create Big Funder role (Red-ish RGB)
+      const bigFunder = await guild.roles.create({
+        name: 'Big Funder',
+        color: 0xFF0000, // Red
+        permissions: memberPermissions,
+        reason: 'Created by bot command'
+      });
+
+      // Create Middle Funder role (Green-ish RGB)
+      const middleFunder = await guild.roles.create({
+        name: 'Middle Funder',
+        color: 0x00FF00, // Green
+        permissions: memberPermissions,
+        reason: 'Created by bot command'
+      });
+
+      // Create Small Funder role (Blue-ish RGB)
+      const smallFunder = await guild.roles.create({
+        name: 'Small Funder',
+        color: 0x0000FF, // Blue
+        permissions: memberPermissions,
+        reason: 'Created by bot command'
+      });
+
+      await interaction.editReply({
+        content: `✅ Successfully created roles:\n` +
+          `🔴 ${bigFunder} - Red (RGB: 255, 0, 0)\n` +
+          `🟢 ${middleFunder} - Green (RGB: 0, 255, 0)\n` +
+          `🔵 ${smallFunder} - Blue (RGB: 0, 0, 255)\n\n` +
+          `All roles have the same permissions as @everyone (member permissions).`
+      });
+    } catch (error) {
+      console.error('Error creating roles:', error);
+      await interaction.editReply({
+        content: `Error creating roles: ${error.message}`
+      });
+    }
+  }
 }
 
 module.exports = { handleCommands };
