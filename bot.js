@@ -384,6 +384,15 @@ client.on('interactionCreate', async (interaction) => {
     const namePrefix = interaction.options.getString('nameprefix');
     const category = interaction.options.getChannel('category');
 
+    if (!memberData.ticketConfig) {
+      memberData.ticketConfig = {
+        channelId: null,
+        namePrefix: 'ticket',
+        ticketCounter: 0,
+        categoryId: null
+      };
+    }
+
     memberData.ticketConfig.channelId = channel.id;
     memberData.ticketConfig.namePrefix = namePrefix;
     memberData.ticketConfig.categoryId = category?.id || null;
@@ -426,6 +435,15 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   if (interaction.isButton() && interaction.customId === 'create_ticket') {
+    if (!memberData.ticketConfig) {
+      memberData.ticketConfig = {
+        channelId: null,
+        namePrefix: 'ticket',
+        ticketCounter: 0,
+        categoryId: null
+      };
+    }
+
     const ticketConfig = memberData.ticketConfig;
 
     if (!ticketConfig.channelId) {
@@ -517,6 +535,10 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   if (interaction.isButton() && interaction.customId === 'close_ticket') {
+    if (!memberData.activeTickets) {
+      memberData.activeTickets = {};
+    }
+
     const userId = Object.keys(memberData.activeTickets).find(
       key => memberData.activeTickets[key] === interaction.channel.id
     );
