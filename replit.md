@@ -7,6 +7,20 @@ This is a Discord bot application designed to track member join events and calcu
 - Rejoining members (already tracked) = 0sx owed (NOT ELIGIBLE)
 - Pre-existing members scanned via /scanexisting = 0sx owed (marked as not eligible)
 
+**Additional Features:**
+- Founder role management system with owner-only access control
+- Automatic RGB color animation for Founder roles (Big Founder, Middle Founder, Small Founder)
+- Environment-based configuration using dotenv for secure credential management
+
+# Recent Changes
+
+**October 7, 2025:**
+- Added dotenv package for secure environment variable management
+- Implemented `/givefounder` command (owner-only, ID: 1309720025912971355) to assign Founder roles
+- Created automatic RGB color cycling animation for all Founder roles
+- Fixed module path issues in command handler
+- Bot token now loaded from .env file (secure configuration)
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -54,6 +68,10 @@ Preferred communication style: Simple, everyday language.
   - Provides slash command builders and REST API client
   - Manages event handlers and client state
   - Includes sub-dependencies: @discordjs/builders, @discordjs/collection, @discordjs/formatters
+- **dotenv (v17.2.3)**: Environment variable management
+  - Loads configuration from .env file
+  - Securely manages Discord bot token and other credentials
+  - Prevents hardcoding sensitive data in source code
 
 ## Discord API
 - **Gateway API**: Real-time event streaming for member joins and server events
