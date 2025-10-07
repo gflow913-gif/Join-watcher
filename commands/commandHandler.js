@@ -22,6 +22,8 @@ async function handleCommands(interaction) {
   }
 
   else if (interaction.commandName === 'scanexisting') {
+    await interaction.deferReply({ ephemeral: true });
+    
     const guild = interaction.guild;
     const members = await guild.members.fetch();
     let count = 0;
@@ -34,7 +36,7 @@ async function handleCommands(interaction) {
     });
 
     saveData();
-    await interaction.reply({ content: `🔍 Scanned ${count} new members and added to database.`, ephemeral: true });
+    await interaction.editReply({ content: `🔍 Scanned ${count} new members and added to database.` });
   }
 
   else if (interaction.commandName === 'unclaimed') {
@@ -62,6 +64,8 @@ async function handleCommands(interaction) {
   }
 
   else if (interaction.commandName === 'setupticket') {
+    await interaction.deferReply({ ephemeral: true });
+    
     const guild = interaction.guild;
     let category = guild.channels.cache.find(c => c.name === 'Tickets' && c.type === ChannelType.GuildCategory);
 
@@ -72,10 +76,12 @@ async function handleCommands(interaction) {
       });
     }
 
-    await interaction.reply({ content: '🎫 Ticket system setup complete.', ephemeral: true });
+    await interaction.editReply({ content: '🎫 Ticket system setup complete.' });
   }
 
   else if (interaction.commandName === 'createroles') {
+    await interaction.deferReply({ ephemeral: true });
+    
     const guild = interaction.guild;
     const colors = ['#ff0000', '#00ff00', '#0000ff'];
     for (const color of colors) {
@@ -84,7 +90,7 @@ async function handleCommands(interaction) {
         color,
       });
     }
-    await interaction.reply({ content: '✅ RGB color roles created!', ephemeral: true });
+    await interaction.editReply({ content: '✅ RGB color roles created!' });
   }
 
   // =====================
@@ -116,13 +122,15 @@ async function handleCommands(interaction) {
 
     // === /givergb ===
     if (interaction.commandName === 'givergb') {
+      await interaction.deferReply({ ephemeral: true });
+      
       let rgbRole = guild.roles.cache.find(r => r.name === 'RGB Name');
 
       if (!rgbRole) {
         rgbRole = await guild.roles.create({
           name: 'RGB Name',
           color: 0xff0000,
-          position: guild.roles.cache.size - 1, // Position at top of role list
+          position: guild.roles.cache.size - 1,
           reason: 'Created for RGB glowing name system'
         });
 
@@ -133,13 +141,12 @@ async function handleCommands(interaction) {
           hue = (hue + 8) % 360;
           const color = hslToHex(hue, 100, 50);
           await rgbRole.setColor(color).catch(() => {});
-        }, 500); // changes smoothly every 0.5 seconds
+        }, 500);
       }
 
       await member.roles.add(rgbRole).catch(console.error);
-      await interaction.reply({
-        content: '🌈 RGB effect added! Your name will now glow smoothly with colors.',
-        ephemeral: true
+      await interaction.editReply({
+        content: '🌈 RGB effect added! Your name will now glow smoothly with colors.'
       });
     }
 
@@ -178,6 +185,8 @@ async function handleCommands(interaction) {
       return;
     }
 
+    await interaction.deferReply({ ephemeral: true });
+
     const targetUser = interaction.options.getUser('user');
     const roleName = interaction.options.getString('role');
     const guild = interaction.guild;
@@ -207,9 +216,8 @@ async function handleCommands(interaction) {
     }
 
     await targetMember.roles.add(founderRole).catch(console.error);
-    await interaction.reply({
-      content: `✅ Successfully assigned **${roleName}** role to ${targetUser.username}!`,
-      ephemeral: true
+    await interaction.editReply({
+      content: `✅ Successfully assigned **${roleName}** role to ${targetUser.username}!`
     });
   }
 
@@ -227,6 +235,8 @@ async function handleCommands(interaction) {
       });
       return;
     }
+
+    await interaction.deferReply({ ephemeral: true });
 
     const guild = interaction.guild;
     const founderRoleNames = ['Big Founder', 'Middle Founder', 'Small Founder'];
@@ -256,7 +266,7 @@ async function handleCommands(interaction) {
     }
 
     message += `\n📊 Fixed ${fixedCount} role(s). RGB animation should work now!`;
-    await interaction.reply({ content: message, ephemeral: true });
+    await interaction.editReply({ content: message });
   }
 }
 

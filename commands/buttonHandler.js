@@ -31,6 +31,8 @@ async function handleButtons(interaction, client) {
       return;
     }
 
+    await interaction.deferReply({ ephemeral: true });
+
     ticketConfig.ticketCounter++;
     const ticketName = `${ticketConfig.namePrefix}-${ticketConfig.ticketCounter}`;
 
@@ -76,9 +78,8 @@ async function handleButtons(interaction, client) {
       memberData.activeTickets[interaction.user.id] = ticketChannel.id;
       saveData();
 
-      await interaction.reply({
-        content: `✅ Ticket created: <#${ticketChannel.id}>`,
-        ephemeral: true
+      await interaction.editReply({
+        content: `✅ Ticket created: <#${ticketChannel.id}>`
       });
 
       const closeButton = new ButtonBuilder()
@@ -96,9 +97,8 @@ async function handleButtons(interaction, client) {
 
     } catch (error) {
       console.error('Error creating ticket:', error);
-      await interaction.reply({
-        content: `Error creating ticket: ${error.message}`,
-        ephemeral: true
+      await interaction.editReply({
+        content: `Error creating ticket: ${error.message}`
       });
     }
   }
