@@ -20,7 +20,8 @@ let memberData = {
     namePrefix: 'ticket',
     ticketCounter: 0,
     categoryId: null
-  }
+  },
+  activeTickets: {}
 };
 
 function loadData() {
@@ -435,6 +436,14 @@ client.on('interactionCreate', async (interaction) => {
       return;
     }
 
+    if (memberData.activeTickets[interaction.user.id]) {
+      await interaction.reply({
+        content: `❌ You already have an active ticket: <#${memberData.activeTickets[interaction.user.id]}>`,
+        ephemeral: true
+      });
+      return;
+    }
+
     ticketConfig.ticketCounter++;
     const ticketName = `${ticketConfig.namePrefix}-${ticketConfig.ticketCounter}`;
 
@@ -477,13 +486,25 @@ client.on('interactionCreate', async (interaction) => {
         ]
       });
 
+      memberData.activeTickets[interaction.user.id] = ticketChannel.id;
+      saveData();
+
       await interaction.reply({
         content: `✅ Ticket created: <#${ticketChannel.id}>`,
         ephemeral: true
       });
 
+      const closeButton = new ButtonBuilder()
+        .setCustomId('close_ticket')
+        .setLabel('🔒 Close Ticket')
+        .setStyle(ButtonStyle.Danger);
+
+      const closeRow = new ActionRowBuilder()
+        .addComponents(closeButton);
+
       await ticketChannel.send({
-        content: `Welcome <@${interaction.user.id}>! This is your private ticket channel.\n\nIt may take up to 24 hours for a payout manager to respond. So please have some patience.`
+        content: `Welcome <@${interaction.user.id}>! This is your private ticket channel.\n\nIt may take up to 24 hours for a payout manager to respond. So please have some patience.`,
+        components: [closeRow]
       });
 
     } catch (error) {
@@ -493,6 +514,43 @@ client.on('interactionCreate', async (interaction) => {
         ephemeral: true
       });
     }
+  }
+
+  if (interaction.isButton() && interaction.customId === 'close_ticket') {
+    const userId = Object.keys(memberData.activeTickets).find(
+      key => memberData.activeTickets[key] === interaction.channel.id
+    );
+
+    if (!userId) {
+      await interaction.reply({
+        content: 'This ticket is not tracked.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    if (interaction.user.id !== userId && interaction.user.id !== '1309720025912971355') {
+      await interaction.reply({
+        content: 'Only the ticket creator or the owner can close this ticket.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    delete memberData.activeTickets[userId];
+    saveData();
+
+    await interaction.reply({
+      content: '🔒 Ticket is being closed...'
+    });
+
+    setTimeout(async () => {
+      try {
+        await interaction.channel.delete();
+      } catch (error) {
+        console.error('Error deleting ticket channel:', error);
+      }
+    }, 3000);
   }
 });
 
