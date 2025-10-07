@@ -61,7 +61,12 @@ const commands = [
           { name: 'Middle Founder', value: 'Middle Founder' },
           { name: 'Small Founder', value: 'Small Founder' }
         )
-    )
+    ),
+
+  // === Fix Founder Roles ===
+  new SlashCommandBuilder()
+    .setName('fixfounder')
+    .setDescription('Fix Founder roles position and settings (Owner only)')
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {

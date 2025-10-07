@@ -13,21 +13,30 @@ async function startFounderRgbAnimation(client) {
 
   const founderRoles = ['Big Founder', 'Middle Founder', 'Small Founder'];
   let hue = 0;
+  let updateCount = 0;
 
   setInterval(async () => {
-    hue = (hue + 6) % 360;
+    hue = (hue + 5) % 360;
     const colorHex = hslToHex(hue, 100, 50);
     const colorInt = parseInt(colorHex.replace('#', ''), 16);
 
-    client.guilds.cache.forEach(async (guild) => {
-      founderRoles.forEach(async (roleName) => {
+    for (const guild of client.guilds.cache.values()) {
+      for (const roleName of founderRoles) {
         const role = guild.roles.cache.find(r => r.name === roleName);
         if (role) {
-          await role.edit({ color: colorInt }).catch(() => {});
+          try {
+            await role.edit({ color: colorInt });
+            updateCount++;
+            if (updateCount % 50 === 0) {
+              console.log(`🎨 RGB Update #${updateCount}: ${roleName} → ${colorHex}`);
+            }
+          } catch (error) {
+            console.error(`❌ Failed to update ${roleName}:`, error.message);
+          }
         }
-      });
-    });
-  }, 500);
+      }
+    }
+  }, 1000);
 
   console.log('✅ Founder RGB animation started successfully!');
 }

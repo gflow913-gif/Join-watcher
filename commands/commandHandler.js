@@ -186,14 +186,24 @@ async function handleCommands(interaction) {
     let founderRole = guild.roles.cache.find(r => r.name === roleName);
 
     if (!founderRole) {
+      const botMember = await guild.members.fetch(interaction.client.user.id);
+      const botTopRole = botMember.roles.highest;
+      
       founderRole = await guild.roles.create({
         name: roleName,
         color: 0xFF0000,
         hoist: true,
+        position: botTopRole.position - 1,
         reason: `Created by ${interaction.user.username} for Founder role system`
       });
     } else {
-      await founderRole.edit({ hoist: true }).catch(console.error);
+      const botMember = await guild.members.fetch(interaction.client.user.id);
+      const botTopRole = botMember.roles.highest;
+      
+      await founderRole.edit({ 
+        hoist: true,
+        position: botTopRole.position - 1
+      }).catch(console.error);
     }
 
     await targetMember.roles.add(founderRole).catch(console.error);
@@ -201,6 +211,52 @@ async function handleCommands(interaction) {
       content: `✅ Successfully assigned **${roleName}** role to ${targetUser.username}!`,
       ephemeral: true
     });
+  }
+
+  // =====================
+  // === FIX FOUNDER ROLES (OWNER ONLY) ===
+  // =====================
+  else if (interaction.commandName === 'fixfounder') {
+    const ownerId = '1309720025912971355';
+    const userId = interaction.user.id;
+
+    if (userId !== ownerId) {
+      await interaction.reply({
+        content: '🚫 You are not authorized to use this command.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    const guild = interaction.guild;
+    const founderRoleNames = ['Big Founder', 'Middle Founder', 'Small Founder'];
+    const botMember = await guild.members.fetch(interaction.client.user.id);
+    const botTopRole = botMember.roles.highest;
+
+    let fixedCount = 0;
+    let message = '🔧 Fixing Founder roles...\n\n';
+
+    for (const roleName of founderRoleNames) {
+      const role = guild.roles.cache.find(r => r.name === roleName);
+      if (role) {
+        try {
+          await role.edit({
+            hoist: true,
+            position: botTopRole.position - 1,
+            color: 0xFF0000
+          });
+          message += `✅ Fixed: ${roleName}\n`;
+          fixedCount++;
+        } catch (error) {
+          message += `❌ Failed: ${roleName} - ${error.message}\n`;
+        }
+      } else {
+        message += `⚠️ Not found: ${roleName}\n`;
+      }
+    }
+
+    message += `\n📊 Fixed ${fixedCount} role(s). RGB animation should work now!`;
+    await interaction.reply({ content: message, ephemeral: true });
   }
 }
 
