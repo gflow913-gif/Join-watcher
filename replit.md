@@ -8,6 +8,10 @@ This is a Discord bot application designed to track member join events and calcu
 - Pre-existing members scanned via /scanexisting = 0sx owed (marked as not eligible)
 
 **Additional Features:**
+- Comprehensive invite tracking system (regular, left, fake, claimed, bonus invites)
+- Welcome message system with inviter attribution
+- Claim panel with ticket creation for reward verification
+- Ticket system with invite count display and management buttons
 - Founder role management system with owner-only access control
 - Automatic RGB color animation for Founder roles (Big Founder, Middle Founder, Small Founder)
 - Environment-based configuration using dotenv for secure credential management
@@ -15,6 +19,12 @@ This is a Discord bot application designed to track member join events and calcu
 # Recent Changes
 
 **October 7, 2025:**
+- Added comprehensive invite tracking system with regular, left, fake, claimed, and bonus invite categories
+- Implemented welcome messages in designated channel (1408275535435661363) showing inviter and member count
+- Created claim panel system with embed and Create Ticket button in channel 1408286047732760677
+- Built ticket system with automatic invite count display, close (lock), and delete functionality
+- Integrated claim command with invite tracker to properly deduct claimed invites
+- Added member leave tracking to update inviter counts
 - Added dotenv package for secure environment variable management
 - Implemented `/givefounder` command (owner-only, ID: 1309720025912971355) to assign Founder roles
 - Created automatic RGB color cycling animation for all Founder roles
@@ -41,9 +51,10 @@ Preferred communication style: Simple, everyday language.
 **Rationale**: File-based storage was chosen for simplicity and portability, suitable for small to medium-scale Discord servers. This approach avoids database setup complexity while maintaining data between bot restarts.
 
 ## Discord Integration
-- **Gateway Intents**: Configured with `Guilds` and `GuildMembers` intents to receive member join/leave events
+- **Gateway Intents**: Configured with `Guilds`, `GuildMembers`, and `GuildInvites` intents to receive member join/leave events and track invites
 - **Slash Commands**: Uses Discord's REST API and Routes system for registering and handling slash commands
 - **Client Architecture**: Single Discord client instance manages all server connections
+- **Invite Tracking**: Caches guild invites on startup to detect which invite was used for each member join
 
 ## Core Business Logic
 - **Eligibility System**: Implements a `checkEligibility()` function that determines if member joins qualify for payment tracking
@@ -52,7 +63,16 @@ Preferred communication style: Simple, everyday language.
   - Array of all join events
   - Count of eligible joins
   - Total amount owed
+  - Inviter ID and invite type (regular/fake/claimed/bonus)
 - **Aggregate Metrics**: Maintains server-wide totals for eligible joins and payment due
+- **Invite Tracker**: Tracks invites per user with categories:
+  - Regular Invites: Count of members invited
+  - Left Invites: Count of members who left (penalty)
+  - Fake Invites: Count of fake/bot invites (penalty)
+  - Claimed Invites: Count of claimed rewards (penalty)
+  - Bonus Invites: Admin-given bonus invites (reward)
+  - Total formula: `regularInvites - leftInvites - fakeInvites - claimedInvites + bonusInvites`
+- **Ticket System**: Creates private channels for users to claim rewards based on invite count
 
 **Design Pattern**: The bot follows a simple procedural pattern with utility functions for data operations (load/save/check) rather than complex OOP structures, making it easy to understand and modify.
 
