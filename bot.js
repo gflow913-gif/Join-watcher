@@ -459,6 +459,14 @@ client.on('interactionCreate', async (interaction) => {
             ]
           },
           {
+            id: '1309720025912971355',
+            allow: [
+              PermissionFlagsBits.ViewChannel,
+              PermissionFlagsBits.SendMessages,
+              PermissionFlagsBits.ReadMessageHistory
+            ]
+          },
+          {
             id: client.user.id,
             allow: [
               PermissionFlagsBits.ViewChannel,
