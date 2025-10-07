@@ -6,7 +6,7 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "Project"
+runButton = "Discord Bot 24/7"
 
 [[workflows.workflow]]
 name = "Project"
@@ -27,3 +27,12 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node bot.js"
+
+[[workflows.workflow]]
+name = "Discord Bot 24/7"
+author = 48397026
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node index.js"
