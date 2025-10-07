@@ -66,7 +66,12 @@ const commands = [
   // === Fix Founder Roles ===
   new SlashCommandBuilder()
     .setName('fixfounder')
-    .setDescription('Fix Founder roles position and settings (Owner only)')
+    .setDescription('Fix Founder roles position and settings (Owner only)'),
+
+  // === Clean Duplicate Roles ===
+  new SlashCommandBuilder()
+    .setName('cleanduplicates')
+    .setDescription('Remove duplicate Founder roles (Owner only)')
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {

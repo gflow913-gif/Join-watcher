@@ -87,6 +87,51 @@ async function handleFounderCommands(interaction) {
     return true;
   }
 
+  if (interaction.commandName === 'cleanduplicates') {
+    if (userId !== ownerId) {
+      await interaction.reply({
+        content: '🚫 You are not authorized to use this command.',
+        ephemeral: true
+      });
+      return true;
+    }
+
+    const guild = interaction.guild;
+    const founderRoleNames = ['Big Founder', 'Middle Founder', 'Small Founder'];
+    let deletedCount = 0;
+    let message = '🧹 Cleaning duplicate Founder roles...\n\n';
+
+    for (const roleName of founderRoleNames) {
+      const duplicateRoles = guild.roles.cache.filter(r => r.name === roleName);
+      
+      if (duplicateRoles.size > 1) {
+        message += `Found ${duplicateRoles.size} copies of **${roleName}**\n`;
+        
+        const rolesArray = Array.from(duplicateRoles.values());
+        const roleToKeep = rolesArray[0];
+        
+        for (let i = 1; i < rolesArray.length; i++) {
+          try {
+            await rolesArray[i].delete();
+            deletedCount++;
+            message += `  ✅ Deleted duplicate #${i}\n`;
+          } catch (error) {
+            message += `  ❌ Failed to delete duplicate #${i}: ${error.message}\n`;
+          }
+        }
+        message += `  ✅ Kept role ID: ${roleToKeep.id}\n\n`;
+      } else if (duplicateRoles.size === 1) {
+        message += `✅ **${roleName}** - No duplicates found\n`;
+      } else {
+        message += `⚠️ **${roleName}** - Not found\n`;
+      }
+    }
+
+    message += `\n📊 Deleted ${deletedCount} duplicate role(s)!`;
+    await interaction.reply({ content: message, ephemeral: true });
+    return true;
+  }
+
   return false;
 }
 
