@@ -1,6 +1,6 @@
 
 const { memberData, saveData } = require('../utils/dataManager');
-const { markInviteAsClaimed, getTotalInvites } = require('../utils/inviteTracker');
+const { markInviteAsClaimed, getTotalInvites, initializeInviteTracker } = require('../utils/inviteTracker');
 
 async function handleBasicCommands(interaction) {
   if (interaction.commandName === 'checkuser') {
@@ -71,6 +71,24 @@ async function handleBasicCommands(interaction) {
       saveData();
       await interaction.reply({ content: `✅ Marked ${user.username} as claimed (no inviter found).`, ephemeral: true });
     }
+    return true;
+  }
+
+  if (interaction.commandName === 'invites') {
+    const user = interaction.options.getUser('user') || interaction.user;
+    const tracker = initializeInviteTracker(user.id);
+    const total = getTotalInvites(user.id);
+
+    const inviteInfo = `📊 **Invite Stats for ${user.username}**\n\n` +
+      `**Total Invites:** ${total}\n\n` +
+      `**Breakdown:**\n` +
+      `✅ Regular Invites: ${tracker.regularInvites}\n` +
+      `➖ Left Invites: ${tracker.leftInvites}\n` +
+      `❌ Fake Invites: ${tracker.fakeInvites}\n` +
+      `🎁 Claimed Invites: ${tracker.claimedInvites}\n` +
+      `⭐ Bonus Invites: ${tracker.bonusInvites}`;
+
+    await interaction.reply({ content: inviteInfo, ephemeral: true });
     return true;
   }
 

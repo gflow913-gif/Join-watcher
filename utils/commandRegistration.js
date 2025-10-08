@@ -19,12 +19,20 @@ const commands = [
 
   new SlashCommandBuilder()
     .setName('claim')
-    .setDescription('Mark join as claimed')
-    .addUserOption(option =>
-      option.setName('user')
-        .setDescription('User to claim')
-        .setRequired(true)
-    ),
+      .setDescription('Mark a user as claimed')
+      .addUserOption(option =>
+        option.setName('user')
+          .setDescription('The user to claim')
+          .setRequired(true)
+      ),
+    new SlashCommandBuilder()
+      .setName('invites')
+      .setDescription('Check invite stats for a user')
+      .addUserOption(option =>
+        option.setName('user')
+          .setDescription('The user to check (leave empty for yourself)')
+          .setRequired(false)
+      ),
 
   new SlashCommandBuilder()
     .setName('setupticket')
