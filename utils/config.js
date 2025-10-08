@@ -1,45 +1,43 @@
 
-const fs = require('fs');
-const path = require('path');
-
-const CONFIG_FILE = path.join(__dirname, '..', 'config.json');
+const Database = require('@replit/database');
+const db = new Database();
 
 let config = {
   paymentPerJoin: 2,
   paymentPerInvite: 0
 };
 
-function loadConfig() {
+async function loadConfig() {
   try {
-    if (fs.existsSync(CONFIG_FILE)) {
-      const data = fs.readFileSync(CONFIG_FILE, 'utf8');
-      Object.assign(config, JSON.parse(data));
-      console.log('✅ Config loaded successfully');
+    const data = await db.get('config');
+    if (data) {
+      Object.assign(config, data);
+      console.log('✅ Config loaded successfully from Replit DB');
     } else {
-      saveConfig();
-      console.log('✅ Default config created');
+      await saveConfig();
+      console.log('✅ Default config created in Replit DB');
     }
   } catch (error) {
     console.error('❌ Error loading config:', error);
   }
 }
 
-function saveConfig() {
+async function saveConfig() {
   try {
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+    await db.set('config', config);
   } catch (error) {
     console.error('❌ Error saving config:', error);
   }
 }
 
-function updatePaymentPerJoin(amount) {
+async function updatePaymentPerJoin(amount) {
   config.paymentPerJoin = amount;
-  saveConfig();
+  await saveConfig();
 }
 
-function updatePaymentPerInvite(amount) {
+async function updatePaymentPerInvite(amount) {
   config.paymentPerInvite = amount;
-  saveConfig();
+  await saveConfig();
 }
 
 module.exports = { 
@@ -47,5 +45,5 @@ module.exports = {
   saveConfig, 
   updatePaymentPerJoin, 
   updatePaymentPerInvite, 
-  config 
+  config
 };

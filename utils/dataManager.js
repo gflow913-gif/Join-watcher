@@ -1,9 +1,7 @@
 
-const fs = require('fs');
-const path = require('path');
+const Database = require('@replit/database');
+const db = new Database();
 const { config } = require('./config');
-
-const DATA_FILE = path.join(__dirname, '..', 'member_data.json');
 
 let memberData = {
   members: {},
@@ -20,23 +18,25 @@ let memberData = {
   inviteTracker: {}
 };
 
-function loadData() {
+async function loadData() {
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      Object.assign(memberData, JSON.parse(data));
-      console.log('Data loaded successfully');
+    const data = await db.get('memberData');
+    if (data) {
+      Object.assign(memberData, data);
+      console.log('✅ Data loaded successfully from Replit DB');
+    } else {
+      console.log('📝 No existing data found, using defaults');
     }
   } catch (error) {
-    console.error('Error loading data:', error);
+    console.error('❌ Error loading data:', error);
   }
 }
 
-function saveData() {
+async function saveData() {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(memberData, null, 2));
+    await db.set('memberData', memberData);
   } catch (error) {
-    console.error('Error saving data:', error);
+    console.error('❌ Error saving data:', error);
   }
 }
 

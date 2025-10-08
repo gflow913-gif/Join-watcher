@@ -1,8 +1,6 @@
 
-const fs = require('fs');
-const path = require('path');
-
-const DEPOSIT_DATA_FILE = path.join(__dirname, '..', 'deposit_data.json');
+const Database = require('@replit/database');
+const db = new Database();
 
 let depositData = {
   depositLink: 'https://www.roblox.com/games/YOUR_GAME_ID',
@@ -12,35 +10,35 @@ let depositData = {
   ticketCategories: {}
 };
 
-function loadDepositData() {
+async function loadDepositData() {
   try {
-    if (fs.existsSync(DEPOSIT_DATA_FILE)) {
-      const data = fs.readFileSync(DEPOSIT_DATA_FILE, 'utf8');
-      Object.assign(depositData, JSON.parse(data));
-      console.log('✅ Deposit data loaded');
+    const data = await db.get('depositData');
+    if (data) {
+      Object.assign(depositData, data);
+      console.log('✅ Deposit data loaded from Replit DB');
     } else {
-      saveDepositData();
-      console.log('✅ Default deposit data created');
+      await saveDepositData();
+      console.log('✅ Default deposit data created in Replit DB');
     }
   } catch (error) {
     console.error('❌ Error loading deposit data:', error);
   }
 }
 
-function saveDepositData() {
+async function saveDepositData() {
   try {
-    fs.writeFileSync(DEPOSIT_DATA_FILE, JSON.stringify(depositData, null, 2));
+    await db.set('depositData', depositData);
   } catch (error) {
     console.error('❌ Error saving deposit data:', error);
   }
 }
 
-function setDepositLink(link) {
+async function setDepositLink(link) {
   depositData.depositLink = link;
-  saveDepositData();
+  await saveDepositData();
 }
 
-function createTicket(userId, channelId, ticketType, categoryId) {
+async function createTicket(userId, channelId, ticketType, categoryId) {
   depositData.activeTickets[userId] = {
     channelId,
     ticketType,
@@ -48,13 +46,13 @@ function createTicket(userId, channelId, ticketType, categoryId) {
     createdAt: Date.now(),
     status: 'open'
   };
-  saveDepositData();
+  await saveDepositData();
 }
 
-function closeTicket(userId) {
+async function closeTicket(userId) {
   if (depositData.activeTickets[userId]) {
     delete depositData.activeTickets[userId];
-    saveDepositData();
+    await saveDepositData();
     return true;
   }
   return false;
@@ -90,20 +88,20 @@ function getTicketType(channelId) {
   return null;
 }
 
-function recordDeposit(userId, amount, timestamp = Date.now()) {
+async function recordDeposit(userId, amount, timestamp = Date.now()) {
   if (!depositData.deposits[userId]) {
     depositData.deposits[userId] = [];
   }
   depositData.deposits[userId].push({ amount, timestamp });
-  saveDepositData();
+  await saveDepositData();
 }
 
-function recordWithdrawal(userId, amount, timestamp = Date.now()) {
+async function recordWithdrawal(userId, amount, timestamp = Date.now()) {
   if (!depositData.withdrawals[userId]) {
     depositData.withdrawals[userId] = [];
   }
   depositData.withdrawals[userId].push({ amount, timestamp });
-  saveDepositData();
+  await saveDepositData();
 }
 
 module.exports = {

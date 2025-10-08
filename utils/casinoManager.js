@@ -1,8 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-
-const CASINO_DATA_FILE = path.join(__dirname, '..', 'casino_data.json');
-const CASINO_CONFIG_FILE = path.join(__dirname, '..', 'casino_config.json');
+const Database = require('@replit/database');
+const db = new Database();
 
 let casinoData = {
   users: {},
@@ -23,50 +20,50 @@ let casinoConfig = {
   bonusCooldown: 86400000
 };
 
-function loadCasinoData() {
+async function loadCasinoData() {
   try {
-    if (fs.existsSync(CASINO_DATA_FILE)) {
-      const data = fs.readFileSync(CASINO_DATA_FILE, 'utf8');
-      Object.assign(casinoData, JSON.parse(data));
-      console.log('✅ Casino data loaded');
+    const data = await db.get('casinoData');
+    if (data) {
+      Object.assign(casinoData, data);
+      console.log('✅ Casino data loaded from Replit DB');
     }
   } catch (error) {
     console.error('❌ Error loading casino data:', error);
   }
 }
 
-function saveCasinoData() {
+async function saveCasinoData() {
   try {
-    fs.writeFileSync(CASINO_DATA_FILE, JSON.stringify(casinoData, null, 2));
+    await db.set('casinoData', casinoData);
   } catch (error) {
     console.error('❌ Error saving casino data:', error);
   }
 }
 
-function loadCasinoConfig() {
+async function loadCasinoConfig() {
   try {
-    if (fs.existsSync(CASINO_CONFIG_FILE)) {
-      const data = fs.readFileSync(CASINO_CONFIG_FILE, 'utf8');
-      Object.assign(casinoConfig, JSON.parse(data));
-      console.log('✅ Casino config loaded');
+    const data = await db.get('casinoConfig');
+    if (data) {
+      Object.assign(casinoConfig, data);
+      console.log('✅ Casino config loaded from Replit DB');
     } else {
-      saveCasinoConfig();
-      console.log('✅ Default casino config created');
+      await saveCasinoConfig();
+      console.log('✅ Default casino config created in Replit DB');
     }
   } catch (error) {
     console.error('❌ Error loading casino config:', error);
   }
 }
 
-function saveCasinoConfig() {
+async function saveCasinoConfig() {
   try {
-    fs.writeFileSync(CASINO_CONFIG_FILE, JSON.stringify(casinoConfig, null, 2));
+    await db.set('casinoConfig', casinoConfig);
   } catch (error) {
     console.error('❌ Error saving casino config:', error);
   }
 }
 
-function getUserBalance(userId) {
+function getUserData(userId) {
   if (!casinoData.users[userId]) {
     casinoData.users[userId] = {
       balance: 1000, // Starting balance
@@ -75,13 +72,12 @@ function getUserBalance(userId) {
       gamesPlayed: 0,
       lastBonus: 0
     };
-    saveCasinoData();
   }
   return casinoData.users[userId];
 }
 
 function updateBalance(userId, amount, isWin = true) {
-  const user = getUserBalance(userId);
+  const user = getUserData(userId);
   user.balance += amount;
   user.gamesPlayed++;
 
@@ -110,13 +106,13 @@ function updateLeaderboard() {
 }
 
 function canClaimBonus(userId) {
-  const user = getUserBalance(userId);
+  const user = getUserData(userId);
   const now = Date.now();
   return (now - user.lastBonus) >= casinoConfig.bonusCooldown;
 }
 
 function claimBonus(userId) {
-  const user = getUserBalance(userId);
+  const user = getUserData(userId);
   user.balance += casinoConfig.dailyBonus;
   user.lastBonus = Date.now();
   saveCasinoData();
@@ -128,7 +124,7 @@ module.exports = {
   saveCasinoData,
   loadCasinoConfig,
   saveCasinoConfig,
-  getUserBalance,
+  getUserData,
   updateBalance,
   canClaimBonus,
   claimBonus,

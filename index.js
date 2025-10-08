@@ -18,7 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => res.send('Bot is running!'));
-app.listen(PORT, () => console.log(`Express server running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Express server running on port ${PORT}`));
 
 // Discord bot
 const client = new Client({
@@ -31,12 +31,14 @@ const client = new Client({
 
 client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  loadData();
-  loadConfig();
-  loadCasinoData();
-  loadCasinoConfig();
-  loadLotteryData();
-  loadDepositData();
+  
+  // Load all data from Replit Database
+  await loadData();
+  await loadConfig();
+  await loadCasinoData();
+  await loadCasinoConfig();
+  await loadLotteryData();
+  await loadDepositData();
   
   for (const guild of client.guilds.cache.values()) {
     await updateInviteCache(guild);
