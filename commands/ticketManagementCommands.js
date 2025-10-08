@@ -2,17 +2,25 @@
 const { PermissionFlagsBits, ChannelType } = require('discord.js');
 
 const OWNER_ID = '1309720025912971355';
-const AUTHORIZED_ROLE_ID = 'YOUR_AUTHORIZED_ROLE_ID'; // Configure this
+
+function getAuthorizedRoles() {
+  const depositRoles = (process.env.DEPOSIT_ROLES || '').split(',').filter(r => r.trim());
+  const withdrawRoles = (process.env.WITHDRAW_ROLES || '').split(',').filter(r => r.trim());
+  const gamblingRoles = (process.env.GAMBLING_ROLES || '').split(',').filter(r => r.trim());
+  const generalRoles = (process.env.GENERAL_ROLES || '').split(',').filter(r => r.trim());
+  
+  return [...new Set([...depositRoles, ...withdrawRoles, ...gamblingRoles, ...generalRoles])];
+}
 
 async function handleTicketManagementCommands(interaction) {
   const userId = interaction.user.id;
   const member = interaction.member;
 
   const isOwner = userId === OWNER_ID;
-  const hasRole = member.roles.cache.has(AUTHORIZED_ROLE_ID);
+  const authorizedRoles = getAuthorizedRoles();
+  const hasRole = authorizedRoles.some(roleId => member.roles.cache.has(roleId));
   const isAuthorized = isOwner || hasRole;
 
-  // === DELETE TICKETS BY PREFIX ===
   if (interaction.commandName === 'deletetickets') {
     if (!isAuthorized) {
       await interaction.reply({

@@ -5,10 +5,11 @@ const path = require('path');
 const DEPOSIT_DATA_FILE = path.join(__dirname, '..', 'deposit_data.json');
 
 let depositData = {
-  depositLink: 'https://www.roblox.com/games/YOUR_GAME_ID', // Default link
+  depositLink: 'https://www.roblox.com/games/YOUR_GAME_ID',
   deposits: {},
   withdrawals: {},
-  activeTickets: {}
+  activeTickets: {},
+  ticketCategories: {}
 };
 
 function loadDepositData() {
@@ -39,9 +40,11 @@ function setDepositLink(link) {
   saveDepositData();
 }
 
-function createTicket(userId, channelId) {
+function createTicket(userId, channelId, ticketType, categoryId) {
   depositData.activeTickets[userId] = {
     channelId,
+    ticketType,
+    categoryId,
     createdAt: Date.now(),
     status: 'open'
   };
@@ -57,14 +60,34 @@ function closeTicket(userId) {
   return false;
 }
 
-function hasActiveTicket(userId) {
-  return !!depositData.activeTickets[userId];
+function hasActiveTicket(userId, ticketType = null) {
+  if (!depositData.activeTickets[userId]) return false;
+  if (ticketType) {
+    return depositData.activeTickets[userId].ticketType === ticketType;
+  }
+  return true;
 }
 
 function getTicketOwner(channelId) {
   return Object.keys(depositData.activeTickets).find(
     userId => depositData.activeTickets[userId].channelId === channelId
   );
+}
+
+function getTicketCategory(channelId) {
+  const userId = getTicketOwner(channelId);
+  if (userId && depositData.activeTickets[userId]) {
+    return depositData.activeTickets[userId].categoryId;
+  }
+  return null;
+}
+
+function getTicketType(channelId) {
+  const userId = getTicketOwner(channelId);
+  if (userId && depositData.activeTickets[userId]) {
+    return depositData.activeTickets[userId].ticketType;
+  }
+  return null;
 }
 
 function recordDeposit(userId, amount, timestamp = Date.now()) {
@@ -91,6 +114,8 @@ module.exports = {
   closeTicket,
   hasActiveTicket,
   getTicketOwner,
+  getTicketCategory,
+  getTicketType,
   recordDeposit,
   recordWithdrawal,
   depositData

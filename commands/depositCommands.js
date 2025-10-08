@@ -3,18 +3,26 @@ const { EmbedBuilder } = require('discord.js');
 const { setDepositLink, depositData } = require('../utils/depositManager');
 
 const OWNER_ID = '1309720025912971355';
-const AUTHORIZED_ROLE_ID = 'YOUR_AUTHORIZED_ROLE_ID'; // Configure this
+
+function getAuthorizedRoles(ticketType = 'GENERAL') {
+  const roles = process.env[`${ticketType.toUpperCase()}_ROLES`] || '';
+  return roles.split(',').filter(r => r.trim());
+}
 
 async function handleDepositCommands(interaction) {
   const userId = interaction.user.id;
   const member = interaction.member;
 
-  // Check authorization
   const isOwner = userId === OWNER_ID;
-  const hasRole = member.roles.cache.has(AUTHORIZED_ROLE_ID);
+  const depositRoles = getAuthorizedRoles('DEPOSIT');
+  const withdrawRoles = getAuthorizedRoles('WITHDRAW');
+  const gamblingRoles = getAuthorizedRoles('GAMBLING');
+  const generalRoles = getAuthorizedRoles('GENERAL');
+  
+  const allAuthorizedRoles = [...new Set([...depositRoles, ...withdrawRoles, ...gamblingRoles, ...generalRoles])];
+  const hasRole = allAuthorizedRoles.some(roleId => member.roles.cache.has(roleId));
   const isAuthorized = isOwner || hasRole;
 
-  // === SET DEPOSIT LINK COMMAND (Owner Only) ===
   if (interaction.commandName === 'setdepositlink') {
     if (!isOwner) {
       await interaction.reply({
@@ -34,7 +42,6 @@ async function handleDepositCommands(interaction) {
     return true;
   }
 
-  // === DEPOSIT COMMAND ===
   if (interaction.commandName === 'deposit') {
     if (!isAuthorized) {
       await interaction.reply({
@@ -61,7 +68,6 @@ async function handleDepositCommands(interaction) {
     return true;
   }
 
-  // === VIEW ACTIVE TICKETS COMMAND ===
   if (interaction.commandName === 'viewtickets') {
     if (!isAuthorized) {
       await interaction.reply({
@@ -82,7 +88,7 @@ async function handleDepositCommands(interaction) {
     }
 
     const ticketList = activeTickets.map(([userId, data]) => {
-      return `• <@${userId}> - <#${data.channelId}> (Created: <t:${Math.floor(data.createdAt / 1000)}:R>)`;
+      return `• <@${userId}> - <#${data.channelId}> [${data.ticketType}] (Created: <t:${Math.floor(data.createdAt / 1000)}:R>)`;
     }).join('\n');
 
     const embed = new EmbedBuilder()

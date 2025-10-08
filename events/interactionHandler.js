@@ -1,6 +1,7 @@
+
 const { handleCommands } = require('../commands/commandHandler');
 const { handleLotteryButtons } = require('../commands/lotteryButtonHandler');
-const { handleButtons } = require('../commands/buttonHandler');
+const { handleButtons, handleSelectMenus } = require('../commands/buttonHandler');
 
 async function handleInteraction(interaction, client) {
   if (interaction.isChatInputCommand()) {
@@ -8,6 +9,8 @@ async function handleInteraction(interaction, client) {
   } else if (interaction.isButton()) {
     if (await handleLotteryButtons(interaction)) return;
     await handleButtons(interaction, client);
+  } else if (interaction.isStringSelectMenu()) {
+    await handleSelectMenus(interaction, client);
   }
 }
 
