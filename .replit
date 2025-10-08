@@ -6,7 +6,7 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "Discord Bot 24/7"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -26,7 +26,8 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node bot.js"
+args = "node index.js"
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Discord Bot 24/7"
@@ -39,4 +40,4 @@ args = "node index.js"
 
 [[ports]]
 localPort = 3000
-externalPort = 80
+externalPort = 3000
