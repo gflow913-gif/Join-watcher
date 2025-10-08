@@ -1,8 +1,5 @@
-
-const fs = require('fs');
-const path = require('path');
-
-const LOTTERY_DATA_FILE = path.join(__dirname, '..', 'lottery_data.json');
+const Database = require('@replit/database');
+const db = new Database();
 
 let lotteryData = {
   activeLotteries: {},
@@ -10,21 +7,21 @@ let lotteryData = {
   userStats: {}
 };
 
-function loadLotteryData() {
+async function loadLotteryData() {
   try {
-    if (fs.existsSync(LOTTERY_DATA_FILE)) {
-      const data = fs.readFileSync(LOTTERY_DATA_FILE, 'utf8');
-      Object.assign(lotteryData, JSON.parse(data));
-      console.log('✅ Lottery data loaded');
+    const data = await db.get('lotteryData');
+    if (data) {
+      Object.assign(lotteryData, data);
+      console.log('✅ Lottery data loaded from Replit DB');
     }
   } catch (error) {
     console.error('❌ Error loading lottery data:', error);
   }
 }
 
-function saveLotteryData() {
+async function saveLotteryData() {
   try {
-    fs.writeFileSync(LOTTERY_DATA_FILE, JSON.stringify(lotteryData, null, 2));
+    await db.set('lotteryData', lotteryData);
   } catch (error) {
     console.error('❌ Error saving lottery data:', error);
   }
@@ -118,22 +115,22 @@ function acceptTicketOffer(lotteryId, sellerId, buyerId) {
 function setWinner(lotteryId, winnerId) {
   const lottery = lotteryData.activeLotteries[lotteryId];
   if (!lottery) return { success: false, message: 'Lottery not found' };
-  
+
   lottery.winner = winnerId;
   lottery.status = 'completed';
   lottery.completedAt = Date.now();
-  
+
   if (!lotteryData.userStats[winnerId]) {
     lotteryData.userStats[winnerId] = { wins: 0, totalWinnings: 0 };
   }
   lotteryData.userStats[winnerId].wins++;
   lotteryData.userStats[winnerId].totalWinnings += lottery.ticketPrice * lottery.totalTickets;
-  
+
   lotteryData.lotteryHistory.push({
     ...lottery,
     completedAt: Date.now()
   });
-  
+
   delete lotteryData.activeLotteries[lotteryId];
   saveLotteryData();
   return { success: true, winner: winnerId };
@@ -142,10 +139,10 @@ function setWinner(lotteryId, winnerId) {
 function pickRandomWinner(lotteryId) {
   const lottery = lotteryData.activeLotteries[lotteryId];
   if (!lottery) return { success: false, message: 'Lottery not found' };
-  
+
   const participants = Object.keys(lottery.participants);
   if (participants.length === 0) return { success: false, message: 'No participants' };
-  
+
   const winnerId = participants[Math.floor(Math.random() * participants.length)];
   return setWinner(lotteryId, winnerId);
 }
