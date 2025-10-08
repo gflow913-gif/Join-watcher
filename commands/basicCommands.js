@@ -48,6 +48,22 @@ async function handleBasicCommands(interaction) {
   }
 
   if (interaction.commandName === 'claim') {
+    const ownerId = '1309720025912971355';
+    const allowedRoleId = '1407011936964448397';
+    const userId = interaction.user.id;
+    const member = interaction.member;
+
+    // Check if user is owner or has the allowed role
+    const hasPermission = userId === ownerId || member.roles.cache.has(allowedRoleId);
+
+    if (!hasPermission) {
+      await interaction.reply({ 
+        content: '🚫 You are not authorized to use this command.', 
+        ephemeral: true 
+      });
+      return true;
+    }
+
     const user = interaction.options.getUser('user');
     if (!user) {
       await interaction.reply({ content: '❌ No user specified.', ephemeral: true });
@@ -58,16 +74,16 @@ async function handleBasicCommands(interaction) {
       return true;
     }
 
-    const member = memberData.members[user.id];
-    if (member.inviterId) {
-      markInviteAsClaimed(member.inviterId, user.id);
-      const newTotal = getTotalInvites(member.inviterId);
+    const memberToMark = memberData.members[user.id];
+    if (memberToMark.inviterId) {
+      markInviteAsClaimed(memberToMark.inviterId, user.id);
+      const newTotal = getTotalInvites(memberToMark.inviterId);
       await interaction.reply({ 
         content: `✅ Marked ${user.username} as claimed. Inviter's new total: ${newTotal}`, 
         ephemeral: true 
       });
     } else {
-      member.claimed = true;
+      memberToMark.claimed = true;
       saveData();
       await interaction.reply({ content: `✅ Marked ${user.username} as claimed (no inviter found).`, ephemeral: true });
     }
