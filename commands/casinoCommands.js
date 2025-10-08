@@ -1,6 +1,5 @@
-
 const { EmbedBuilder } = require('discord.js');
-const { getUserBalance, updateBalance, canClaimBonus, claimBonus, casinoData, casinoConfig } = require('../utils/casinoManager');
+const { getUserBalance, updateBalance, canClaimBonus, claimBonus, casinoData, casinoConfig, createTicketInChannel } = require('../utils/casinoManager');
 
 async function handleCasinoCommands(interaction) {
   const userId = interaction.user.id;
@@ -9,16 +8,16 @@ async function handleCasinoCommands(interaction) {
   if (interaction.commandName === 'balance') {
     const targetUser = interaction.options.getUser('user') || interaction.user;
     const userData = getUserBalance(targetUser.id);
-    
+
     const embed = new EmbedBuilder()
       .setColor('#FFD700')
       .setTitle(`💰 ${targetUser.username}'s Casino Balance`)
       .addFields(
-        { name: '💵 Current Balance', value: `${userData.balance} coins`, inline: true },
-        { name: '📈 Total Won', value: `${userData.totalWon} coins`, inline: true },
-        { name: '📉 Total Lost', value: `${userData.totalLost} coins`, inline: true },
+        { name: '💵 Current Balance', value: `${userData.balance} sx`, inline: true },
+        { name: '📈 Total Won', value: `${userData.totalWon} sx`, inline: true },
+        { name: '📉 Total Lost', value: `${userData.totalLost} sx`, inline: true },
         { name: '🎮 Games Played', value: `${userData.gamesPlayed}`, inline: true },
-        { name: '💸 Net Profit', value: `${userData.totalWon - userData.totalLost} coins`, inline: true }
+        { name: '💸 Net Profit', value: `${userData.totalWon - userData.totalLost} sx`, inline: true }
       )
       .setTimestamp();
 
@@ -33,22 +32,22 @@ async function handleCasinoCommands(interaction) {
 
     // Validation
     if (amount < casinoConfig.minBet) {
-      await interaction.reply({ content: `❌ Minimum bet is ${casinoConfig.minBet} coins!`, ephemeral: true });
+      await interaction.reply({ content: `❌ Minimum bet is ${casinoConfig.minBet} sx!`, ephemeral: true });
       return true;
     }
     if (amount > casinoConfig.maxBet) {
-      await interaction.reply({ content: `❌ Maximum bet is ${casinoConfig.maxBet} coins!`, ephemeral: true });
+      await interaction.reply({ content: `❌ Maximum bet is ${casinoConfig.maxBet} sx!`, ephemeral: true });
       return true;
     }
     if (userData.balance < amount) {
-      await interaction.reply({ content: `❌ Insufficient balance! You have ${userData.balance} coins.`, ephemeral: true });
+      await interaction.reply({ content: `❌ Insufficient balance! You have ${userData.balance} sx.`, ephemeral: true });
       return true;
     }
 
     const roll = Math.floor(Math.random() * 100) + 1;
     const isWin = roll >= casinoConfig.diceWinThreshold;
     const winAmount = Math.floor(amount * casinoConfig.diceMultiplier);
-    
+
     if (isWin) {
       updateBalance(userId, winAmount, true);
       const embed = new EmbedBuilder()
@@ -56,12 +55,12 @@ async function handleCasinoCommands(interaction) {
         .setTitle('🎲 Dice Roll - WIN!')
         .setDescription(`You rolled **${roll}** (needed ${casinoConfig.diceWinThreshold}+)`)
         .addFields(
-          { name: '💰 Bet Amount', value: `${amount} coins`, inline: true },
-          { name: '🏆 Winnings', value: `${winAmount} coins`, inline: true },
-          { name: '💵 New Balance', value: `${userData.balance + winAmount} coins`, inline: true }
+          { name: '💰 Bet Amount', value: `${amount} sx`, inline: true },
+          { name: '🏆 Winnings', value: `${winAmount} sx`, inline: true },
+          { name: '💵 New Balance', value: `${userData.balance + winAmount} sx`, inline: true }
         )
         .setTimestamp();
-      
+
       await interaction.reply({ embeds: [embed] });
     } else {
       updateBalance(userId, -amount, false);
@@ -70,13 +69,15 @@ async function handleCasinoCommands(interaction) {
         .setTitle('🎲 Dice Roll - LOSS')
         .setDescription(`You rolled **${roll}** (needed ${casinoConfig.diceWinThreshold}+)`)
         .addFields(
-          { name: '💸 Lost Amount', value: `${amount} coins`, inline: true },
-          { name: '💵 New Balance', value: `${userData.balance - amount} coins`, inline: true }
+          { name: '💸 Lost Amount', value: `${amount} sx`, inline: true },
+          { name: '💵 New Balance', value: `${userData.balance - amount} sx`, inline: true }
         )
         .setTimestamp();
-      
+
       await interaction.reply({ embeds: [embed] });
     }
+    // Add ticket creation for the claim panel
+    await createTicketInChannel('1425380712411828306', interaction.user.tag, `Lost ${amount} sx in Dice game.`);
     return true;
   }
 
@@ -88,22 +89,22 @@ async function handleCasinoCommands(interaction) {
 
     // Validation
     if (amount < casinoConfig.minBet) {
-      await interaction.reply({ content: `❌ Minimum bet is ${casinoConfig.minBet} coins!`, ephemeral: true });
+      await interaction.reply({ content: `❌ Minimum bet is ${casinoConfig.minBet} sx!`, ephemeral: true });
       return true;
     }
     if (amount > casinoConfig.maxBet) {
-      await interaction.reply({ content: `❌ Maximum bet is ${casinoConfig.maxBet} coins!`, ephemeral: true });
+      await interaction.reply({ content: `❌ Maximum bet is ${casinoConfig.maxBet} sx!`, ephemeral: true });
       return true;
     }
     if (userData.balance < amount) {
-      await interaction.reply({ content: `❌ Insufficient balance! You have ${userData.balance} coins.`, ephemeral: true });
+      await interaction.reply({ content: `❌ Insufficient balance! You have ${userData.balance} sx.`, ephemeral: true });
       return true;
     }
 
     const result = Math.random() < 0.5 ? 'heads' : 'tails';
     const isWin = choice === result;
     const winAmount = Math.floor(amount * casinoConfig.coinFlipMultiplier);
-    
+
     if (isWin) {
       updateBalance(userId, winAmount, true);
       const embed = new EmbedBuilder()
@@ -111,12 +112,12 @@ async function handleCasinoCommands(interaction) {
         .setTitle('🪙 Coin Flip - WIN!')
         .setDescription(`The coin landed on **${result}**! You chose **${choice}**`)
         .addFields(
-          { name: '💰 Bet Amount', value: `${amount} coins`, inline: true },
-          { name: '🏆 Winnings', value: `${winAmount} coins`, inline: true },
-          { name: '💵 New Balance', value: `${userData.balance + winAmount} coins`, inline: true }
+          { name: '💰 Bet Amount', value: `${amount} sx`, inline: true },
+          { name: '🏆 Winnings', value: `${winAmount} sx`, inline: true },
+          { name: '💵 New Balance', value: `${userData.balance + winAmount} sx`, inline: true }
         )
         .setTimestamp();
-      
+
       await interaction.reply({ embeds: [embed] });
     } else {
       updateBalance(userId, -amount, false);
@@ -125,13 +126,15 @@ async function handleCasinoCommands(interaction) {
         .setTitle('🪙 Coin Flip - LOSS')
         .setDescription(`The coin landed on **${result}**! You chose **${choice}**`)
         .addFields(
-          { name: '💸 Lost Amount', value: `${amount} coins`, inline: true },
-          { name: '💵 New Balance', value: `${userData.balance - amount} coins`, inline: true }
+          { name: '💸 Lost Amount', value: `${amount} sx`, inline: true },
+          { name: '💵 New Balance', value: `${userData.balance - amount} sx`, inline: true }
         )
         .setTimestamp();
-      
+
       await interaction.reply({ embeds: [embed] });
     }
+     // Add ticket creation for the claim panel
+    await createTicketInChannel('1425380712411828306', interaction.user.tag, `Lost ${amount} sx in Coin Flip game.`);
     return true;
   }
 
@@ -142,15 +145,15 @@ async function handleCasinoCommands(interaction) {
 
     // Validation
     if (amount < casinoConfig.minBet) {
-      await interaction.reply({ content: `❌ Minimum bet is ${casinoConfig.minBet} coins!`, ephemeral: true });
+      await interaction.reply({ content: `❌ Minimum bet is ${casinoConfig.minBet} sx!`, ephemeral: true });
       return true;
     }
     if (amount > casinoConfig.maxBet) {
-      await interaction.reply({ content: `❌ Maximum bet is ${casinoConfig.maxBet} coins!`, ephemeral: true });
+      await interaction.reply({ content: `❌ Maximum bet is ${casinoConfig.maxBet} sx!`, ephemeral: true });
       return true;
     }
     if (userData.balance < amount) {
-      await interaction.reply({ content: `❌ Insufficient balance! You have ${userData.balance} coins.`, ephemeral: true });
+      await interaction.reply({ content: `❌ Insufficient balance! You have ${userData.balance} sx.`, ephemeral: true });
       return true;
     }
 
@@ -158,10 +161,10 @@ async function handleCasinoCommands(interaction) {
     const slot1 = symbols[Math.floor(Math.random() * symbols.length)];
     const slot2 = symbols[Math.floor(Math.random() * symbols.length)];
     const slot3 = symbols[Math.floor(Math.random() * symbols.length)];
-    
+
     let multiplier = 0;
     let resultText = '';
-    
+
     if (slot1 === slot2 && slot2 === slot3) {
       multiplier = casinoConfig.slotMultipliers.triple;
       resultText = '🎰 **TRIPLE MATCH! JACKPOT!** 🎰';
@@ -171,10 +174,10 @@ async function handleCasinoCommands(interaction) {
     } else {
       resultText = '💔 **No Match**';
     }
-    
+
     const winAmount = Math.floor(amount * multiplier);
     const isWin = multiplier > 0;
-    
+
     if (isWin) {
       updateBalance(userId, winAmount, true);
       const embed = new EmbedBuilder()
@@ -182,13 +185,13 @@ async function handleCasinoCommands(interaction) {
         .setTitle('🎰 SLOT MACHINE - WIN!')
         .setDescription(`${slot1} | ${slot2} | ${slot3}\n\n${resultText}`)
         .addFields(
-          { name: '💰 Bet Amount', value: `${amount} coins`, inline: true },
+          { name: '💰 Bet Amount', value: `${amount} sx`, inline: true },
           { name: '📊 Multiplier', value: `x${multiplier}`, inline: true },
-          { name: '🏆 Winnings', value: `${winAmount} coins`, inline: true },
-          { name: '💵 New Balance', value: `${userData.balance + winAmount} coins`, inline: false }
+          { name: '🏆 Winnings', value: `${winAmount} sx`, inline: true },
+          { name: '💵 New Balance', value: `${userData.balance + winAmount} sx`, inline: false }
         )
         .setTimestamp();
-      
+
       await interaction.reply({ embeds: [embed] });
     } else {
       updateBalance(userId, -amount, false);
@@ -197,36 +200,38 @@ async function handleCasinoCommands(interaction) {
         .setTitle('🎰 SLOT MACHINE - LOSS')
         .setDescription(`${slot1} | ${slot2} | ${slot3}\n\n${resultText}`)
         .addFields(
-          { name: '💸 Lost Amount', value: `${amount} coins`, inline: true },
-          { name: '💵 New Balance', value: `${userData.balance - amount} coins`, inline: true }
+          { name: '💸 Lost Amount', value: `${amount} sx`, inline: true },
+          { name: '💵 New Balance', value: `${userData.balance - amount} sx`, inline: true }
         )
         .setTimestamp();
-      
+
       await interaction.reply({ embeds: [embed] });
     }
+     // Add ticket creation for the claim panel
+    await createTicketInChannel('1425380712411828306', interaction.user.tag, `Lost ${amount} sx in Slots game.`);
     return true;
   }
 
   // ===== LEADERBOARD COMMAND =====
   if (interaction.commandName === 'leaderboard') {
     const topUsers = casinoData.leaderboard.slice(0, 10);
-    
+
     if (topUsers.length === 0) {
       await interaction.reply({ content: '📊 No leaderboard data yet! Start playing to appear here!', ephemeral: true });
       return true;
     }
-    
+
     const leaderboardText = topUsers.map((user, index) => {
       const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-      return `${medal} <@${user.userId}> - **${user.netProfit}** coins profit (Balance: ${user.balance})`;
+      return `${medal} <@${user.userId}> - **${user.netProfit}** sx profit (Balance: ${user.balance})`;
     }).join('\n');
-    
+
     const embed = new EmbedBuilder()
       .setColor('#FFD700')
       .setTitle('🏆 Casino Leaderboard - Top Winners')
       .setDescription(leaderboardText)
       .setTimestamp();
-    
+
     await interaction.reply({ embeds: [embed] });
     return true;
   }
@@ -238,27 +243,27 @@ async function handleCasinoCommands(interaction) {
       const timeLeft = casinoConfig.bonusCooldown - (Date.now() - userData.lastBonus);
       const hoursLeft = Math.floor(timeLeft / 3600000);
       const minutesLeft = Math.floor((timeLeft % 3600000) / 60000);
-      
+
       await interaction.reply({ 
         content: `⏰ You can claim your next bonus in **${hoursLeft}h ${minutesLeft}m**!`, 
         ephemeral: true 
       });
       return true;
     }
-    
+
     const bonusAmount = claimBonus(userId);
     const userData = getUserBalance(userId);
-    
+
     const embed = new EmbedBuilder()
       .setColor('#00FF00')
       .setTitle('🎁 Daily Bonus Claimed!')
-      .setDescription(`You received **${bonusAmount} coins**!`)
+      .setDescription(`You received **${bonusAmount} sx**!`)
       .addFields(
-        { name: '💵 New Balance', value: `${userData.balance} coins`, inline: true },
+        { name: '💵 New Balance', value: `${userData.balance} sx`, inline: true },
         { name: '⏰ Next Bonus', value: 'Available in 24 hours', inline: true }
       )
       .setTimestamp();
-    
+
     await interaction.reply({ embeds: [embed] });
     return true;
   }

@@ -1,8 +1,7 @@
-
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { createLottery, getLottery, pickRandomWinner, setWinner, lotteryData } = require('../utils/lotteryManager');
 
-const LOTTERY_CHANNEL_ID = '1419177241094524928';
+const LOTTERY_CHANNEL_ID = '1425380712411828306';
 
 async function handleLotteryCommands(interaction) {
   const ownerId = '1309720025912971355';
@@ -29,10 +28,10 @@ async function handleLotteryCommands(interaction) {
       .setTitle('🎟️ NEW LOTTERY STARTED!')
       .setDescription(`A new lottery has been created!`)
       .addFields(
-        { name: '💰 Ticket Price', value: `${ticketPrice} coins`, inline: true },
+        { name: '💰 Ticket Price', value: `${ticketPrice} sx`, inline: true },
         { name: '🎫 Total Tickets', value: `${ticketCount}`, inline: true },
         { name: '🎫 Tickets Sold', value: `0/${ticketCount}`, inline: true },
-        { name: '💵 Prize Pool', value: `${ticketPrice * ticketCount} coins`, inline: true },
+        { name: '💵 Prize Pool', value: `${ticketPrice * ticketCount} sx`, inline: true },
         { name: '📊 Status', value: '🟢 Active', inline: true }
       )
       .setTimestamp()
@@ -56,7 +55,7 @@ async function handleLotteryCommands(interaction) {
 
     const channel = await interaction.client.channels.fetch(LOTTERY_CHANNEL_ID);
     const message = await channel.send({ embeds: [embed], components: [row] });
-    
+
     lottery.messageId = message.id;
     require('../utils/lotteryManager').saveLotteryData();
 
@@ -98,7 +97,7 @@ async function handleLotteryCommands(interaction) {
     }
 
     const result = setWinner(lotteryId, winnerId);
-    
+
     const channel = await interaction.client.channels.fetch(LOTTERY_CHANNEL_ID);
     const message = await channel.messages.fetch(lottery.messageId);
 
@@ -111,7 +110,7 @@ async function handleLotteryCommands(interaction) {
       .setDescription(`The lottery has ended!`)
       .addFields(
         { name: '🏆 Winner', value: `<@${winnerId}>`, inline: true },
-        { name: '💰 Prize Pool', value: `${prizePool} coins`, inline: true },
+        { name: '💰 Prize Pool', value: `${prizePool} sx`, inline: true },
         { name: '🎫 Total Participants', value: `${Object.keys(lottery.participants).length}`, inline: true }
       )
       .setTimestamp()
@@ -120,7 +119,7 @@ async function handleLotteryCommands(interaction) {
     await message.edit({ embeds: [embed], components: [] });
 
     await interaction.reply({
-      content: `✅ Winner configured: <@${winnerId}> won ${prizePool} coins!`,
+      content: `✅ Winner configured: <@${winnerId}> won ${prizePool} sx!`,
       ephemeral: true
     });
     return true;
@@ -138,7 +137,7 @@ async function handleLotteryCommands(interaction) {
 
     const lotteryId = interaction.options.getString('lotteryid');
     const lottery = getLottery(lotteryId);
-    
+
     if (!lottery) {
       await interaction.reply({
         content: '❌ Lottery not found!',
@@ -167,7 +166,7 @@ async function handleLotteryCommands(interaction) {
       .setDescription(`The lottery has ended!`)
       .addFields(
         { name: '🏆 Winner', value: `<@${result.winner}>`, inline: true },
-        { name: '💰 Prize Pool', value: `${prizePool} coins`, inline: true },
+        { name: '💰 Prize Pool', value: `${prizePool} sx`, inline: true },
         { name: '🎫 Total Participants', value: `${Object.keys(lottery.participants).length}`, inline: true }
       )
       .setTimestamp()
@@ -176,7 +175,7 @@ async function handleLotteryCommands(interaction) {
     await message.edit({ embeds: [embed], components: [] });
 
     await interaction.reply({
-      content: `✅ Lottery ended! Winner: <@${result.winner}> won ${prizePool} coins!`,
+      content: `✅ Lottery ended! Winner: <@${result.winner}> won ${prizePool} sx!`,
       ephemeral: true
     });
     return true;

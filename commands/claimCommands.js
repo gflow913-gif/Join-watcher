@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
-const CLAIM_PANEL_CHANNEL_ID = '1408286047732760677';
+const CLAIM_PANEL_CHANNEL_ID = '1425380712411828306';
 
 async function handleClaimCommands(interaction) {
   if (interaction.commandName === 'setupclaimpanel') {

@@ -35,7 +35,7 @@ async function handleLotteryButtons(interaction) {
     
     if (userData.balance < lottery.ticketPrice) {
       await interaction.reply({
-        content: `❌ Insufficient balance! You need ${lottery.ticketPrice} coins but have ${userData.balance} coins.`,
+        content: `❌ Insufficient balance! You need ${lottery.ticketPrice} sx but have ${userData.balance} sx.`,
         ephemeral: true
       });
       return true;
@@ -72,7 +72,7 @@ async function handleLotteryButtons(interaction) {
     await interaction.update({ embeds: [embed] });
     
     await interaction.followUp({
-      content: `✅ You purchased a lottery ticket for ${lottery.ticketPrice} coins!`,
+      content: `✅ You purchased a lottery ticket for ${lottery.ticketPrice} sx!`,
       ephemeral: true
     });
     return true;
@@ -134,7 +134,7 @@ async function handleLotteryButtons(interaction) {
 
     if (userData.balance < offerPrice) {
       await interaction.reply({
-        content: `❌ Insufficient balance! You need ${offerPrice} coins to make an offer.`,
+        content: `❌ Insufficient balance! You need ${offerPrice} sx to make an offer.`,
         ephemeral: true
       });
       return true;
@@ -160,7 +160,7 @@ async function handleLotteryButtons(interaction) {
     const row = new ActionRowBuilder().addComponents(buttons.slice(0, 5));
 
     await interaction.reply({
-      content: `💰 You offered ${offerPrice} coins for a ticket. Current ticket holders can accept your offer below.`,
+      content: `💰 You offered ${offerPrice} sx for a ticket. Current ticket holders can accept your offer below.`,
       components: buttons.length > 0 ? [row] : [],
       ephemeral: false
     });

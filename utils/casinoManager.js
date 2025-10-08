@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -11,18 +10,17 @@ let casinoData = {
 };
 
 let casinoConfig = {
-  minBet: 10,
-  maxBet: 1000,
+  minBet: 100,
+  maxBet: 10000,
   diceWinThreshold: 50,
   diceMultiplier: 1.8,
   coinFlipMultiplier: 1.9,
   slotMultipliers: {
-    triple: 10,
-    double: 3,
-    single: 0
+    triple: 15,
+    double: 3
   },
-  dailyBonus: 100,
-  bonusCooldown: 86400000 // 24 hours in ms
+  dailyBonus: 500,
+  bonusCooldown: 86400000
 };
 
 function loadCasinoData() {
@@ -86,13 +84,13 @@ function updateBalance(userId, amount, isWin = true) {
   const user = getUserBalance(userId);
   user.balance += amount;
   user.gamesPlayed++;
-  
+
   if (isWin && amount > 0) {
     user.totalWon += amount;
   } else if (!isWin && amount < 0) {
     user.totalLost += Math.abs(amount);
   }
-  
+
   saveCasinoData();
   updateLeaderboard();
 }
@@ -107,7 +105,7 @@ function updateLeaderboard() {
     }))
     .sort((a, b) => b.netProfit - a.netProfit)
     .slice(0, 10);
-  
+
   saveCasinoData();
 }
 
