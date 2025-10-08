@@ -208,7 +208,48 @@ const commands = [
 
   new SlashCommandBuilder()
     .setName('viewcasinoconfig')
-    .setDescription('View casino configuration (Owner only)')
+    .setDescription('View casino configuration (Owner only)'),
+
+  // === Lottery Commands (Owner Only) ===
+  new SlashCommandBuilder()
+    .setName('createlottery')
+    .setDescription('Create a new lottery (Owner only)')
+    .addIntegerOption(option =>
+      option.setName('ticketprice')
+        .setDescription('Price per ticket in coins')
+        .setRequired(true)
+        .setMinValue(1)
+    )
+    .addIntegerOption(option =>
+      option.setName('ticketcount')
+        .setDescription('Number of tickets available')
+        .setRequired(true)
+        .setMinValue(2)
+        .setMaxValue(100)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('configlottery')
+    .setDescription('Manually configure lottery winner (Owner only)')
+    .addStringOption(option =>
+      option.setName('lotteryid')
+        .setDescription('Lottery ID')
+        .setRequired(true)
+    )
+    .addUserOption(option =>
+      option.setName('winner')
+        .setDescription('User to set as winner')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('endlottery')
+    .setDescription('End lottery and pick random winner (Owner only)')
+    .addStringOption(option =>
+      option.setName('lotteryid')
+        .setDescription('Lottery ID')
+        .setRequired(true)
+    )
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {
