@@ -103,7 +103,26 @@ const commands = [
 
   new SlashCommandBuilder()
     .setName('viewconfig')
-    .setDescription('View current payment configuration (Owner only)')
+    .setDescription('View current payment configuration (Owner only)'),
+
+  // === Channel Management (Owner Only) ===
+  new SlashCommandBuilder()
+    .setName('deletechannel')
+    .setDescription('Delete a channel (Owner only)')
+    .addChannelOption(option =>
+      option.setName('channel')
+        .setDescription('The channel to delete')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('deletecategory')
+    .setDescription('Delete a category and all its channels (Owner only)')
+    .addChannelOption(option =>
+      option.setName('category')
+        .setDescription('The category to delete')
+        .setRequired(true)
+    )
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {
