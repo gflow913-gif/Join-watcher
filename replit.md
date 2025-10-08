@@ -1,11 +1,11 @@
 # Overview
 
-This is a Discord bot application designed to track member join events and calculate payment eligibility based on join patterns. The bot monitors when members join a Discord server, maintains historical records of joins, and tracks financial obligations tied to these events (2sx per eligible join). It uses slash commands for interaction and persists data in a local JSON file.
+This is a Discord bot application designed to track member join events and calculate payment eligibility based on join patterns. The bot monitors when members join a Discord server, maintains historical records of joins, and tracks financial obligations tied to these events (2qi per eligible join). It uses slash commands for interaction and persists data in a local JSON file.
 
 **Payment Rules:**
-- New members (first-time joins) = 2sx owed (ELIGIBLE)
-- Rejoining members (already tracked) = 0sx owed (NOT ELIGIBLE)
-- Pre-existing members scanned via /scanexisting = 0sx owed (marked as not eligible)
+- New members (first-time joins) = 2qi owed (ELIGIBLE)
+- Rejoining members (already tracked) = 0qi owed (NOT ELIGIBLE)
+- Pre-existing members scanned via /scanexisting = 0qi owed (marked as not eligible)
 
 **Additional Features:**
 - Comprehensive invite tracking system (regular, left, fake, claimed, bonus invites)
@@ -17,6 +17,11 @@ This is a Discord bot application designed to track member join events and calcu
 - Environment-based configuration using dotenv for secure credential management
 
 # Recent Changes
+
+**October 8, 2025:**
+- Changed all currency references from "sx" and "coins" to "qi" throughout the entire system
+- Updated casino commands, lottery system, config commands, and event logging to use "qi" currency
+- Verified bot runs successfully with new currency display
 
 **October 7, 2025:**
 - Added comprehensive invite tracking system with regular, left, fake, claimed, and bonus invite categories
