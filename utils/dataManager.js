@@ -1,6 +1,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { config } = require('./config');
 
 const DATA_FILE = path.join(__dirname, '..', 'member_data.json');
 
@@ -61,11 +62,11 @@ function checkEligibility(userId, isNewMember) {
 
   if (isNewMember) {
     member.eligibleJoins++;
-    member.totalOwed += 2;
+    member.totalOwed += config.paymentPerJoin;
     memberData.totalEligibleJoins++;
-    memberData.totalPaymentDue += 2;
+    memberData.totalPaymentDue += config.paymentPerJoin;
     saveData();
-    return { eligible: true, reason: 'New member join', owed: 2 };
+    return { eligible: true, reason: 'New member join', owed: config.paymentPerJoin };
   } else {
     saveData();
     return { eligible: false, reason: 'Rejoined (already counted)', owed: 0 };

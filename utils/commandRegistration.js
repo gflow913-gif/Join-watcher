@@ -80,7 +80,30 @@ const commands = [
   // === Setup Claim Panel ===
   new SlashCommandBuilder()
     .setName('setupclaimpanel')
-    .setDescription('Setup the claim panel in the designated channel')
+    .setDescription('Setup the claim panel in the designated channel'),
+
+  // === Config Commands (Owner Only) ===
+  new SlashCommandBuilder()
+    .setName('setjoinpayment')
+    .setDescription('Set payment amount per join (Owner only)')
+    .addNumberOption(option =>
+      option.setName('amount')
+        .setDescription('Amount in sx')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('setinvitepayment')
+    .setDescription('Set payment amount per invite (Owner only)')
+    .addNumberOption(option =>
+      option.setName('amount')
+        .setDescription('Amount in sx')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('viewconfig')
+    .setDescription('View current payment configuration (Owner only)')
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {

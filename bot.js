@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { loadData, saveData, checkEligibility, memberData } = require('./utils/dataManager');
+const { loadConfig } = require('./utils/config');
 const { registerCommands } = require('./utils/commandRegistration');
 const { handleMemberJoin } = require('./events/memberJoin');
 const { handleMemberLeave } = require('./events/memberLeave');
@@ -19,6 +20,7 @@ const client = new Client({
 client.once('ready', async () => {
   console.log(`Bot is ready! Logged in as ${client.user.tag}`);
   loadData();
+  loadConfig();
   
   for (const guild of client.guilds.cache.values()) {
     await updateInviteCache(guild);
