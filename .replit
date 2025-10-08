@@ -41,3 +41,7 @@ args = "node index.js"
 [[ports]]
 localPort = 3000
 externalPort = 3000
+
+[[ports]]
+localPort = 43359
+externalPort = 80
