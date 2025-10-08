@@ -1,0 +1,12 @@
+{
+  "users": {
+    "1309720025912971355": {
+      "balance": 1000,
+      "totalWon": 0,
+      "totalLost": 0,
+      "gamesPlayed": 0,
+      "lastBonus": 0
+    }
+  },
+  "leaderboard": []
+}
