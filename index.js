@@ -13,10 +13,12 @@ const { handleMemberLeave } = require('./events/memberLeave');
 const { handleInteraction } = require('./events/interactionHandler');
 const { updateInviteCache } = require('./utils/inviteTracker');
 
-// Express server for uptime
+// Express server for uptime (keeps bot alive on Render.com)
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.get('/', (req, res) => res.send('Bot is running!'));
-app.listen(3000, () => console.log('Express server running on port 3000'));
+app.listen(PORT, () => console.log(`Express server running on port ${PORT}`));
 
 // Discord bot
 const client = new Client({
