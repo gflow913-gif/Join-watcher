@@ -26,7 +26,7 @@ async function handleConfigCommands(interaction) {
 
     updatePaymentPerJoin(amount);
     await interaction.reply({ 
-      content: `✅ Payment per join updated to **${amount}sx**`, 
+      content: `✅ Payment per join updated to **${amount}qi**`, 
       ephemeral: true 
     });
     return true;
@@ -45,7 +45,7 @@ async function handleConfigCommands(interaction) {
 
     updatePaymentPerInvite(amount);
     await interaction.reply({ 
-      content: `✅ Payment per invite updated to **${amount}sx**`, 
+      content: `✅ Payment per invite updated to **${amount}qi**`, 
       ephemeral: true 
     });
     return true;
@@ -53,8 +53,8 @@ async function handleConfigCommands(interaction) {
 
   if (interaction.commandName === 'viewconfig') {
     const configInfo = `⚙️ **Current Payment Configuration**\n\n` +
-      `💰 Payment per Join: **${config.paymentPerJoin}sx**\n` +
-      `🎁 Payment per Invite: **${config.paymentPerInvite}sx**`;
+      `💰 Payment per Join: **${config.paymentPerJoin}qi**\n` +
+      `🎁 Payment per Invite: **${config.paymentPerInvite}qi**`;
 
     await interaction.reply({ content: configInfo, ephemeral: true });
     return true;

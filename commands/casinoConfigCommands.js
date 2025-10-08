@@ -23,7 +23,7 @@ async function handleCasinoConfigCommands(interaction) {
         casinoConfig.minBet = value;
         saveCasinoConfig();
         await interaction.reply({ 
-          content: `✅ Minimum bet set to **${value} coins**`, 
+          content: `✅ Minimum bet set to **${value} qi**`, 
           ephemeral: true 
         });
         break;
@@ -32,7 +32,7 @@ async function handleCasinoConfigCommands(interaction) {
         casinoConfig.maxBet = value;
         saveCasinoConfig();
         await interaction.reply({ 
-          content: `✅ Maximum bet set to **${value} coins**`, 
+          content: `✅ Maximum bet set to **${value} qi**`, 
           ephemeral: true 
         });
         break;
@@ -86,7 +86,7 @@ async function handleCasinoConfigCommands(interaction) {
         casinoConfig.dailyBonus = value;
         saveCasinoConfig();
         await interaction.reply({ 
-          content: `✅ Daily bonus set to **${value} coins**`, 
+          content: `✅ Daily bonus set to **${value} qi**`, 
           ephemeral: true 
         });
         break;
@@ -107,14 +107,14 @@ async function handleCasinoConfigCommands(interaction) {
       .setColor('#FFD700')
       .setTitle('🎰 Casino Configuration')
       .addFields(
-        { name: '💰 Minimum Bet', value: `${casinoConfig.minBet} coins`, inline: true },
-        { name: '💰 Maximum Bet', value: `${casinoConfig.maxBet} coins`, inline: true },
+        { name: '💰 Minimum Bet', value: `${casinoConfig.minBet} qi`, inline: true },
+        { name: '💰 Maximum Bet', value: `${casinoConfig.maxBet} qi`, inline: true },
         { name: '🎲 Dice Win Threshold', value: `${casinoConfig.diceWinThreshold}+`, inline: true },
         { name: '🎲 Dice Multiplier', value: `x${casinoConfig.diceMultiplier}`, inline: true },
         { name: '🪙 Coin Flip Multiplier', value: `x${casinoConfig.coinFlipMultiplier}`, inline: true },
         { name: '🎰 Slot Triple Match', value: `x${casinoConfig.slotMultipliers.triple}`, inline: true },
         { name: '🎰 Slot Double Match', value: `x${casinoConfig.slotMultipliers.double}`, inline: true },
-        { name: '🎁 Daily Bonus', value: `${casinoConfig.dailyBonus} coins`, inline: true }
+        { name: '🎁 Daily Bonus', value: `${casinoConfig.dailyBonus} qi`, inline: true }
       )
       .setTimestamp();
 

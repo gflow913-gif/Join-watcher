@@ -13,7 +13,7 @@ async function handleMemberJoin(member, client) {
   console.log(`Eligibility check for ${member.user.tag}:`);
   console.log(`- Eligible: ${result.eligible}`);
   console.log(`- Reason: ${result.reason}`);
-  console.log(`- Payment owed: ${result.owed}sx`);
+  console.log(`- Payment owed: ${result.owed}qi`);
 
   const inviter = await findInviter(member.guild);
   
@@ -69,9 +69,9 @@ async function handleMemberJoin(member, client) {
           `User: ${member.user.tag} (<@${member.user.id}>)\n` +
           `Inviter: ${inviter ? `${inviter.tag} (<@${inviter.id}>)` : 'Unknown'}\n` +
           `Status: ${result.eligible ? '✅ Eligible (NEW)' : '❌ Not Eligible (REJOIN)'}\n` +
-          `Payment: ${result.owed}sx\n` +
+          `Payment: ${result.owed}qi\n` +
           `Total Eligible Joins: ${memberData.totalEligibleJoins}\n` +
-          `Total Payment Due: ${memberData.totalPaymentDue}sx`
+          `Total Payment Due: ${memberData.totalPaymentDue}qi`
       });
     }
   } catch (error) {

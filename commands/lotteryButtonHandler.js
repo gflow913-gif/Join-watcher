@@ -35,7 +35,7 @@ async function handleLotteryButtons(interaction) {
     
     if (userData.balance < lottery.ticketPrice) {
       await interaction.reply({
-        content: `❌ Insufficient balance! You need ${lottery.ticketPrice} sx but have ${userData.balance} sx.`,
+        content: `❌ Insufficient balance! You need ${lottery.ticketPrice} qi but have ${userData.balance} qi.`,
         ephemeral: true
       });
       return true;
@@ -60,10 +60,10 @@ async function handleLotteryButtons(interaction) {
       .setTitle('🎟️ NEW LOTTERY STARTED!')
       .setDescription(`A new lottery has been created!`)
       .addFields(
-        { name: '💰 Ticket Price', value: `${lottery.ticketPrice} coins`, inline: true },
+        { name: '💰 Ticket Price', value: `${lottery.ticketPrice} qi`, inline: true },
         { name: '🎫 Total Tickets', value: `${lottery.totalTickets}`, inline: true },
         { name: '🎫 Tickets Sold', value: `${ticketsSold}/${lottery.totalTickets}`, inline: true },
-        { name: '💵 Prize Pool', value: `${lottery.ticketPrice * lottery.totalTickets} coins`, inline: true },
+        { name: '💵 Prize Pool', value: `${lottery.ticketPrice * lottery.totalTickets} qi`, inline: true },
         { name: '📊 Status', value: ticketsSold >= lottery.totalTickets ? '🔴 Sold Out' : '🟢 Active', inline: true }
       )
       .setTimestamp()
@@ -72,7 +72,7 @@ async function handleLotteryButtons(interaction) {
     await interaction.update({ embeds: [embed] });
     
     await interaction.followUp({
-      content: `✅ You purchased a lottery ticket for ${lottery.ticketPrice} sx!`,
+      content: `✅ You purchased a lottery ticket for ${lottery.ticketPrice} qi!`,
       ephemeral: true
     });
     return true;
@@ -99,10 +99,10 @@ async function handleLotteryButtons(interaction) {
       .setTitle('🎟️ NEW LOTTERY STARTED!')
       .setDescription(`A new lottery has been created!`)
       .addFields(
-        { name: '💰 Ticket Price', value: `${lottery.ticketPrice} coins`, inline: true },
+        { name: '💰 Ticket Price', value: `${lottery.ticketPrice} qi`, inline: true },
         { name: '🎫 Total Tickets', value: `${lottery.totalTickets}`, inline: true },
         { name: '🎫 Tickets Sold', value: `${ticketsSold}/${lottery.totalTickets}`, inline: true },
-        { name: '💵 Prize Pool', value: `${lottery.ticketPrice * lottery.totalTickets} coins`, inline: true },
+        { name: '💵 Prize Pool', value: `${lottery.ticketPrice * lottery.totalTickets} qi`, inline: true },
         { name: '📊 Status', value: ticketsSold >= lottery.totalTickets ? '🔴 Sold Out' : '🟢 Active', inline: true }
       )
       .setTimestamp()
@@ -111,7 +111,7 @@ async function handleLotteryButtons(interaction) {
     await interaction.update({ embeds: [embed] });
 
     await interaction.followUp({
-      content: `✅ Ticket sold back! You received ${result.refund} coins.`,
+      content: `✅ Ticket sold back! You received ${result.refund} qi.`,
       ephemeral: true
     });
     return true;
@@ -134,7 +134,7 @@ async function handleLotteryButtons(interaction) {
 
     if (userData.balance < offerPrice) {
       await interaction.reply({
-        content: `❌ Insufficient balance! You need ${offerPrice} sx to make an offer.`,
+        content: `❌ Insufficient balance! You need ${offerPrice} qi to make an offer.`,
         ephemeral: true
       });
       return true;
@@ -160,7 +160,7 @@ async function handleLotteryButtons(interaction) {
     const row = new ActionRowBuilder().addComponents(buttons.slice(0, 5));
 
     await interaction.reply({
-      content: `💰 You offered ${offerPrice} sx for a ticket. Current ticket holders can accept your offer below.`,
+      content: `💰 You offered ${offerPrice} qi for a ticket. Current ticket holders can accept your offer below.`,
       components: buttons.length > 0 ? [row] : [],
       ephemeral: false
     });
@@ -195,7 +195,7 @@ async function handleLotteryButtons(interaction) {
     updateBalance(sellerId, result.sellerProfit, true);
 
     await interaction.update({
-      content: `✅ Ticket transferred! <@${buyerId}> bought the ticket from <@${sellerId}> for ${result.sellerProfit} coins.`,
+      content: `✅ Ticket transferred! <@${buyerId}> bought the ticket from <@${sellerId}> for ${result.sellerProfit} qi.`,
       components: []
     });
     return true;

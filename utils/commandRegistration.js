@@ -88,7 +88,7 @@ const commands = [
     .setDescription('Set payment amount per join (Owner only)')
     .addNumberOption(option =>
       option.setName('amount')
-        .setDescription('Amount in sx')
+        .setDescription('Amount in qi')
         .setRequired(true)
     ),
 
@@ -97,7 +97,7 @@ const commands = [
     .setDescription('Set payment amount per invite (Owner only)')
     .addNumberOption(option =>
       option.setName('amount')
-        .setDescription('Amount in sx')
+        .setDescription('Amount in qi')
         .setRequired(true)
     ),
 
@@ -216,7 +216,7 @@ const commands = [
     .setDescription('Create a new lottery (Owner only)')
     .addIntegerOption(option =>
       option.setName('ticketprice')
-        .setDescription('Price per ticket in coins')
+        .setDescription('Price per ticket in qi')
         .setRequired(true)
         .setMinValue(1)
     )

@@ -28,10 +28,10 @@ async function handleLotteryCommands(interaction) {
       .setTitle('🎟️ NEW LOTTERY STARTED!')
       .setDescription(`A new lottery has been created!`)
       .addFields(
-        { name: '💰 Ticket Price', value: `${ticketPrice} sx`, inline: true },
+        { name: '💰 Ticket Price', value: `${ticketPrice} qi`, inline: true },
         { name: '🎫 Total Tickets', value: `${ticketCount}`, inline: true },
         { name: '🎫 Tickets Sold', value: `0/${ticketCount}`, inline: true },
-        { name: '💵 Prize Pool', value: `${ticketPrice * ticketCount} sx`, inline: true },
+        { name: '💵 Prize Pool', value: `${ticketPrice * ticketCount} qi`, inline: true },
         { name: '📊 Status', value: '🟢 Active', inline: true }
       )
       .setTimestamp()
@@ -110,7 +110,7 @@ async function handleLotteryCommands(interaction) {
       .setDescription(`The lottery has ended!`)
       .addFields(
         { name: '🏆 Winner', value: `<@${winnerId}>`, inline: true },
-        { name: '💰 Prize Pool', value: `${prizePool} sx`, inline: true },
+        { name: '💰 Prize Pool', value: `${prizePool} qi`, inline: true },
         { name: '🎫 Total Participants', value: `${Object.keys(lottery.participants).length}`, inline: true }
       )
       .setTimestamp()
@@ -119,7 +119,7 @@ async function handleLotteryCommands(interaction) {
     await message.edit({ embeds: [embed], components: [] });
 
     await interaction.reply({
-      content: `✅ Winner configured: <@${winnerId}> won ${prizePool} sx!`,
+      content: `✅ Winner configured: <@${winnerId}> won ${prizePool} qi!`,
       ephemeral: true
     });
     return true;
@@ -166,7 +166,7 @@ async function handleLotteryCommands(interaction) {
       .setDescription(`The lottery has ended!`)
       .addFields(
         { name: '🏆 Winner', value: `<@${result.winner}>`, inline: true },
-        { name: '💰 Prize Pool', value: `${prizePool} sx`, inline: true },
+        { name: '💰 Prize Pool', value: `${prizePool} qi`, inline: true },
         { name: '🎫 Total Participants', value: `${Object.keys(lottery.participants).length}`, inline: true }
       )
       .setTimestamp()
@@ -175,7 +175,7 @@ async function handleLotteryCommands(interaction) {
     await message.edit({ embeds: [embed], components: [] });
 
     await interaction.reply({
-      content: `✅ Lottery ended! Winner: <@${result.winner}> won ${prizePool} sx!`,
+      content: `✅ Lottery ended! Winner: <@${result.winner}> won ${prizePool} qi!`,
       ephemeral: true
     });
     return true;
