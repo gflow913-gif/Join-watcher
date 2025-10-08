@@ -249,6 +249,38 @@ const commands = [
       option.setName('lotteryid')
         .setDescription('Lottery ID')
         .setRequired(true)
+    ),
+
+  // === Deposit & Ticket Management Commands ===
+  new SlashCommandBuilder()
+    .setName('setdepositlink')
+    .setDescription('Set the Roblox deposit game link (Owner only)')
+    .addStringOption(option =>
+      option.setName('link')
+        .setDescription('Roblox game link for deposits')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('deposit')
+    .setDescription('Send deposit instructions (Owner/Admin only)')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('User to send instructions to')
+        .setRequired(false)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('viewtickets')
+    .setDescription('View all active tickets (Owner/Admin only)'),
+
+  new SlashCommandBuilder()
+    .setName('deletetickets')
+    .setDescription('Delete all channels starting with a prefix (Owner/Admin only)')
+    .addStringOption(option =>
+      option.setName('prefix')
+        .setDescription('Channel name prefix (e.g., "ticket")')
+        .setRequired(true)
     )
 ].map(command => command.toJSON());
 

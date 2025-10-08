@@ -1,6 +1,7 @@
 const { memberData, saveData } = require('../utils/dataManager');
 const { getTotalInvites } = require('../utils/inviteTracker');
-const { PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { hasActiveTicket, createTicket, closeTicket, getTicketOwner } = require('../utils/depositManager');
+const { PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 
 async function handleButtons(interaction, client) {
   if (interaction.customId === 'create_ticket') {
@@ -13,9 +14,9 @@ async function handleButtons(interaction, client) {
       };
     }
 
-    if (memberData.activeTickets[interaction.user.id]) {
+    if (hasActiveTicket(interaction.user.id)) {
       await interaction.reply({
-        content: `You already have an open ticket.`,
+        content: `❌ You already have an open ticket.`,
         ephemeral: true
       });
       return;
@@ -54,6 +55,7 @@ async function handleButtons(interaction, client) {
       });
 
       memberData.activeTickets[interaction.user.id] = ticketChannel.id;
+      createTicket(interaction.user.id, ticketChannel.id);
       saveData();
 
       await interaction.reply({
@@ -76,8 +78,20 @@ async function handleButtons(interaction, client) {
       const row = new ActionRowBuilder()
         .addComponents(closeButton, deleteButton);
 
+      const embed = new EmbedBuilder()
+        .setColor('#0099FF')
+        .setTitle('🎫 Ticket Created')
+        .setDescription(`Welcome <@${interaction.user.id}>! Your ticket has been created.`)
+        .addFields(
+          { name: '💰 Your Rewards', value: `You have **${totalInvites}** invite reward(s) available.`, inline: false },
+          { name: '📋 Instructions', value: 'Staff will assist you with deposits, withdrawals, or reward claims.', inline: false },
+          { name: '⏰ Next Steps', value: 'Please wait for a staff member to respond.', inline: false }
+        )
+        .setTimestamp();
+
       await ticketChannel.send({
-        content: `<@${interaction.user.id}>\n\nYou will get **${totalInvites}** reward(s) for your total invites.\nPlease wait for a staff member to verify your claim.`,
+        content: `<@${interaction.user.id}>`,
+        embeds: [embed],
         components: [row]
       });
 
@@ -91,24 +105,30 @@ async function handleButtons(interaction, client) {
   }
 
   if (interaction.customId === 'close_ticket') {
-    if (!memberData.activeTickets) {
-      memberData.activeTickets = {};
+    const ticketOwnerId = getTicketOwner(interaction.channel.id);
+    
+    if (!ticketOwnerId) {
+      await interaction.reply({
+        content: '❌ This ticket is not tracked.',
+        ephemeral: true
+      });
+      return;
     }
 
-    const userId = Object.keys(memberData.activeTickets).find(
-      key => memberData.activeTickets[key] === interaction.channel.id
-    );
+    const userId = interaction.user.id;
+    const OWNER_ID = '1309720025912971355';
+    const isOwnerOrTicketOwner = userId === OWNER_ID || userId === ticketOwnerId;
 
-    if (!userId) {
+    if (!isOwnerOrTicketOwner) {
       await interaction.reply({
-        content: 'This ticket is not tracked.',
+        content: '🚫 Only the ticket owner or admin can close this ticket.',
         ephemeral: true
       });
       return;
     }
 
     try {
-      await interaction.channel.permissionOverwrites.edit(userId, {
+      await interaction.channel.permissionOverwrites.edit(ticketOwnerId, {
         SendMessages: false
       });
 
@@ -118,30 +138,37 @@ async function handleButtons(interaction, client) {
     } catch (error) {
       console.error('Error locking ticket:', error);
       await interaction.reply({
-        content: 'Error locking ticket.',
+        content: '❌ Error locking ticket.',
         ephemeral: true
       });
     }
   }
 
   if (interaction.customId === 'delete_ticket') {
-    if (!memberData.activeTickets) {
-      memberData.activeTickets = {};
-    }
+    const ticketOwnerId = getTicketOwner(interaction.channel.id);
 
-    const userId = Object.keys(memberData.activeTickets).find(
-      key => memberData.activeTickets[key] === interaction.channel.id
-    );
-
-    if (!userId) {
+    if (!ticketOwnerId) {
       await interaction.reply({
-        content: 'This ticket is not tracked.',
+        content: '❌ This ticket is not tracked.',
         ephemeral: true
       });
       return;
     }
 
-    delete memberData.activeTickets[userId];
+    const userId = interaction.user.id;
+    const OWNER_ID = '1309720025912971355';
+    const isOwnerOrTicketOwner = userId === OWNER_ID || userId === ticketOwnerId;
+
+    if (!isOwnerOrTicketOwner) {
+      await interaction.reply({
+        content: '🚫 Only the ticket owner or admin can delete this ticket.',
+        ephemeral: true
+      });
+      return;
+    }
+
+    delete memberData.activeTickets[ticketOwnerId];
+    closeTicket(ticketOwnerId);
     saveData();
 
     await interaction.reply({

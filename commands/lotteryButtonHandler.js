@@ -1,5 +1,14 @@
 
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
+async function handleLotteryButtons(interaction) {
+  // Lottery button handling will be implemented here
+  // For now, return false to allow other button handlers
+  return false;
+}
+
+module.exports = { handleLotteryButtons };
+
 const { getLottery, joinLottery, sellTicket, createTicketOffer, acceptTicketOffer } = require('../utils/lotteryManager');
 const { getUserBalance, updateBalance } = require('../utils/casinoManager');
 

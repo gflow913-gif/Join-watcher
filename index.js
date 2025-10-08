@@ -6,6 +6,7 @@ const { loadData } = require('./utils/dataManager');
 const { loadConfig } = require('./utils/config');
 const { loadCasinoData, loadCasinoConfig } = require('./utils/casinoManager');
 const { loadLotteryData } = require('./utils/lotteryManager');
+const { loadDepositData } = require('./utils/depositManager');
 const { registerCommands } = require('./utils/commandRegistration');
 const { handleMemberJoin } = require('./events/memberJoin');
 const { handleMemberLeave } = require('./events/memberLeave');
@@ -33,6 +34,7 @@ client.once('ready', async () => {
   loadCasinoData();
   loadCasinoConfig();
   loadLotteryData();
+  loadDepositData();
   
   for (const guild of client.guilds.cache.values()) {
     await updateInviteCache(guild);
