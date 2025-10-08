@@ -4,6 +4,7 @@ const express = require('express');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { loadData } = require('./utils/dataManager');
 const { loadConfig } = require('./utils/config');
+const { loadCasinoData, loadCasinoConfig } = require('./utils/casinoManager');
 const { registerCommands } = require('./utils/commandRegistration');
 const { handleMemberJoin } = require('./events/memberJoin');
 const { handleMemberLeave } = require('./events/memberLeave');
@@ -28,6 +29,8 @@ client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
   loadData();
   loadConfig();
+  loadCasinoData();
+  loadCasinoConfig();
   
   for (const guild of client.guilds.cache.values()) {
     await updateInviteCache(guild);

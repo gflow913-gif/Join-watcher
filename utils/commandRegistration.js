@@ -122,7 +122,93 @@ const commands = [
       option.setName('category')
         .setDescription('The category to delete')
         .setRequired(true)
+    ),
+
+  // === Casino Commands ===
+  new SlashCommandBuilder()
+    .setName('balance')
+    .setDescription('Check your casino balance')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('Check another user\'s balance')
+        .setRequired(false)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('betdice')
+    .setDescription('Roll the dice and bet on the outcome')
+    .addIntegerOption(option =>
+      option.setName('amount')
+        .setDescription('Amount to bet')
+        .setRequired(true)
+        .setMinValue(1)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('betcoin')
+    .setDescription('Flip a coin and bet on the outcome')
+    .addIntegerOption(option =>
+      option.setName('amount')
+        .setDescription('Amount to bet')
+        .setRequired(true)
+        .setMinValue(1)
     )
+    .addStringOption(option =>
+      option.setName('choice')
+        .setDescription('Choose heads or tails')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Heads', value: 'heads' },
+          { name: 'Tails', value: 'tails' }
+        )
+    ),
+
+  new SlashCommandBuilder()
+    .setName('betslots')
+    .setDescription('Spin the slot machine')
+    .addIntegerOption(option =>
+      option.setName('amount')
+        .setDescription('Amount to bet')
+        .setRequired(true)
+        .setMinValue(1)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('leaderboard')
+    .setDescription('View the casino leaderboard'),
+
+  new SlashCommandBuilder()
+    .setName('claimbonus')
+    .setDescription('Claim your daily bonus'),
+
+  // === Casino Config (Owner Only) ===
+  new SlashCommandBuilder()
+    .setName('configcasino')
+    .setDescription('Configure casino settings (Owner only)')
+    .addStringOption(option =>
+      option.setName('setting')
+        .setDescription('Setting to configure')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Minimum Bet', value: 'minbet' },
+          { name: 'Maximum Bet', value: 'maxbet' },
+          { name: 'Dice Win Threshold', value: 'dicethreshold' },
+          { name: 'Dice Multiplier', value: 'dicemultiplier' },
+          { name: 'Coin Flip Multiplier', value: 'coinmultiplier' },
+          { name: 'Slot Triple Match Multiplier', value: 'slottriple' },
+          { name: 'Slot Double Match Multiplier', value: 'slotdouble' },
+          { name: 'Daily Bonus Amount', value: 'dailybonus' }
+        )
+    )
+    .addNumberOption(option =>
+      option.setName('value')
+        .setDescription('New value for the setting')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('viewcasinoconfig')
+    .setDescription('View casino configuration (Owner only)')
 ].map(command => command.toJSON());
 
 async function registerCommands(client) {

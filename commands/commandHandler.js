@@ -5,6 +5,8 @@ const { handleFounderCommands } = require('./founderCommands');
 const { handleClaimCommands } = require('./claimCommands');
 const { handleConfigCommands } = require('./configCommands');
 const { handleChannelCommands } = require('./channelCommands');
+const { handleCasinoCommands } = require('./casinoCommands');
+const { handleCasinoConfigCommands } = require('./casinoConfigCommands');
 
 // ===== MAIN COMMAND HANDLER =====
 async function handleCommands(interaction) {
@@ -18,6 +20,8 @@ async function handleCommands(interaction) {
   if (await handleClaimCommands(interaction)) return;
   if (await handleConfigCommands(interaction)) return;
   if (await handleChannelCommands(interaction)) return;
+  if (await handleCasinoCommands(interaction)) return;
+  if (await handleCasinoConfigCommands(interaction)) return;
 }
 
 // === Helper Function for Smooth Color Fade ===
